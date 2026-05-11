@@ -1,0 +1,8 @@
+{
+  "name": "agent-resources",
+  "description": "Agent skills and Cursor rules",
+  "version": "1.0.0",
+  "author": { "name": "jcottam" },
+  "license": "MIT",
+  "skills": ["./skills/engineering/ship"]
+}
