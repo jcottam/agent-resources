@@ -1,49 +1,65 @@
 # Agent Resources
 
-Agent skills and Cursor rules I use for real engineering work. Small, composable, and platform-agnostic.
+Battle-tested agent skills and Cursor rules from real projects. Works with Cursor, Claude Code, and any agent.
+
+## What's Inside
+
+- **Skills** -- Repeatable workflows your agent can follow (`SKILL.md` files)
+- **Rules** -- Persistent context for Cursor sessions (`.mdc` files)
 
 ## Quickstart
 
 ### Install all skills
 
-**Cursor / npx:**
-
-```bash
-npx skills@latest add jcottam/agent-resources
-```
-
-**Claude Code:**
-
-```bash
-/plugin marketplace add jcottam/agent-resources
-/plugin install agent-resources
-```
+| Platform | Command |
+|----------|---------|
+| Cursor / npx | `npx skills@latest add jcottam/agent-resources` |
+| Claude Code | `/plugin marketplace add jcottam/agent-resources` then `/plugin install agent-resources` |
 
 ### Install a single skill
 
-**Cursor / npx:**
+| Platform | Command |
+|----------|---------|
+| Cursor / npx | `npx skills@latest add jcottam/agent-resources/ship` |
+| Manual (any agent) | Copy `SKILL.md` into `~/.cursor/skills/<skill-name>/` |
+
+### Update installed skills
 
 ```bash
-npx skills@latest add jcottam/agent-resources/ship
+npx skills update
 ```
-
-**Manual (any agent):**
-
-Copy the `SKILL.md` file from any skill directory into your agent's skill directory (e.g. `~/.cursor/skills/<skill-name>/SKILL.md`).
 
 ## Skills
 
 ### Engineering
 
-Skills for daily code work.
+| Skill | Description |
+|-------|-------------|
+| [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
 
-- **[ship](./skills/engineering/ship/SKILL.md)** -- Validate a branch, run quality gates, update documentation and changelog, and open a pull request. Use when you say "ship", "open a PR", or "let's ship it".
+---
 
 ## Rules
 
 Cursor rules (`.mdc` files) will be added to the `rules/` directory over time. See the [rules README](./rules/README.md) for format and installation instructions.
 
-## Adding a new skill
+## Resources
+
+Other skills and tools worth checking out.
+
+| Resource | Description |
+|----------|-------------|
+| [skills.sh](https://skills.sh) | Registry and CLI for discovering, installing, and managing agent skills. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | Engineering and productivity skills for real development -- TDD, diagnosis, grilling, and more. |
+| [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Behavioral guidelines derived from Karpathy's observations on LLM coding pitfalls. |
+| [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
+| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
+| [squirrelscan/squirrelscan](https://github.com/squirrelscan/squirrelscan) | Website auditing tool built for agent and LLM workflows. |
+| [Introduction to Agent Skills](https://anthropic.skilljar.com/introduction-to-agent-skills) | Anthropic's course on writing and using agent skills. |
+
+## Contributing
+
+### Add a skill
 
 1. Create `skills/<category>/<skill-name>/SKILL.md` with YAML frontmatter:
 
@@ -59,9 +75,9 @@ Skill instructions here...
 ```
 
 2. Add the skill path to `.claude-plugin/plugin.json` in the `skills` array.
-3. Add a one-liner to the reference table in this README.
+3. Add a row to the skills table in this README.
 
-## Adding a new rule
+### Add a rule
 
 1. Create `rules/<rule-name>.mdc` with YAML frontmatter:
 
@@ -77,7 +93,7 @@ alwaysApply: false
 Rule content here...
 ```
 
-2. Update `rules/README.md` with the new rule.
+2. Add the rule to `rules/README.md`.
 
 ## License
 
