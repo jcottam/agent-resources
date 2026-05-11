@@ -1,7 +1,5 @@
 # Agent Resources
 
-![Agent Resources](./assets/banner.png)
-
 Battle-tested agent skills and Cursor rules from real projects. Works with Cursor, Claude Code, and any agent.
 
 ## What's Inside
@@ -100,3 +98,5 @@ Rule content here...
 ## License
 
 [MIT](./LICENSE)
+
+![Agent Resources](./assets/banner.png)
