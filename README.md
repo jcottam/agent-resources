@@ -23,6 +23,12 @@ Battle-tested agent skills and Cursor rules from real projects. Works with Curso
 | Cursor / npx | `npx skills@latest add jcottam/agent-resources/ship` |
 | Manual (any agent) | Copy `SKILL.md` into `~/.cursor/skills/<skill-name>/` |
 
+### Update installed skills
+
+```bash
+npx skills update
+```
+
 ## Skills
 
 ### Engineering
@@ -49,6 +55,7 @@ Other skills and tools worth checking out.
 | [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
 | [squirrelscan/squirrelscan](https://github.com/squirrelscan/squirrelscan) | Website auditing tool built for agent and LLM workflows. |
+| [Introduction to Agent Skills](https://anthropic.skilljar.com/introduction-to-agent-skills) | Anthropic's course on writing and using agent skills. |
 
 ## Contributing
 

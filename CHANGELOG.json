@@ -1,0 +1,16 @@
+[
+  {
+    "version": "0.1.0",
+    "date": "2026-05-11",
+    "pr": {
+      "number": 1,
+      "title": "Improve README with resources, tables, and copy polish",
+      "url": "https://github.com/jcottam/agent-resources/pull/1"
+    },
+    "changes": {
+      "improvements": [
+        "Improved README with clearer copy, install tables, resources section, and contributing guide"
+      ]
+    }
+  }
+]
