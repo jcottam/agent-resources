@@ -1,10 +1,6 @@
 ---
 name: ship
-description: >-
-  Validate a branch, run quality gates, update documentation and changelog, and
-  open a pull request. Use when the user says "ship", "ship this", "open a PR",
-  "prepare a PR", "send this for review", "let's ship it", or any variation of
-  wanting to finalize work and create a pull request.
+description: Validate a branch, run quality gates, update documentation and changelog, and open a pull request. Use when the user says "ship", "ship this", "open a PR", "prepare a PR", "send this for review", "let's ship it", or any variation of wanting to finalize work and create a pull request.
 ---
 
 # Ship
@@ -23,15 +19,15 @@ Pre-flight checklist that validates the branch, runs quality gates, updates docu
 
    **Branch prefixes:**
 
-   | Prefix | Use when |
-   |--------|----------|
-   | `feature/` | New functionality or capabilities |
-   | `fix/` | Bug fixes |
-   | `chore/` | Maintenance, dependency updates, config changes |
-   | `refactor/` | Code restructuring with no behavior change |
-   | `docs/` | Documentation-only changes |
-   | `test/` | Adding or updating tests with no production code changes |
-   | `perf/` | Performance improvements |
+   | Prefix      | Use when                                                 |
+   | ----------- | -------------------------------------------------------- |
+   | `feature/`  | New functionality or capabilities                        |
+   | `fix/`      | Bug fixes                                                |
+   | `chore/`    | Maintenance, dependency updates, config changes          |
+   | `refactor/` | Code restructuring with no behavior change               |
+   | `docs/`     | Documentation-only changes                               |
+   | `test/`     | Adding or updating tests with no production code changes |
+   | `perf/`     | Performance improvements                                 |
 
 4. Run `git log <default-branch>..HEAD --oneline` to build a summary of what will be in the PR. If there are no commits ahead of the default branch, stop — there is nothing to ship.
 
@@ -49,12 +45,12 @@ Detect which gates exist in the project, then run only those that are present. R
 
 **Detection rules:**
 
-| Gate | Present when | Command |
-|------|-------------|---------|
-| Lint | A `lint` script exists in `package.json`, or a linter config file exists at the repo root (ESLint, Biome, oxlint) | `<pm> lint` (prefer the `lint` script; fall back to `<pm> exec eslint .` if only a config file exists) |
-| Type check | `tsconfig.json` exists at the repo root | Prefer a `typecheck`, `check-types`, or `type-check` script in `package.json` if one exists; otherwise `<pm> exec tsc --noEmit` |
-| Tests | A `test` script exists in `package.json` | `<pm> test` |
-| Build | A `build` script exists in `package.json` | `<pm> build` |
+| Gate       | Present when                                                                                                      | Command                                                                                                                         |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Lint       | A `lint` script exists in `package.json`, or a linter config file exists at the repo root (ESLint, Biome, oxlint) | `<pm> lint` (prefer the `lint` script; fall back to `<pm> exec eslint .` if only a config file exists)                          |
+| Type check | `tsconfig.json` exists at the repo root                                                                           | Prefer a `typecheck`, `check-types`, or `type-check` script in `package.json` if one exists; otherwise `<pm> exec tsc --noEmit` |
+| Tests      | A `test` script exists in `package.json`                                                                          | `<pm> test`                                                                                                                     |
+| Build      | A `build` script exists in `package.json`                                                                         | `<pm> build`                                                                                                                    |
 
 `<pm>` is the project's package manager. Detect it from the lock file: `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lockb` → bun, otherwise npm.
 
@@ -71,9 +67,9 @@ Review the changes on the branch (`git diff <default-branch>..HEAD`) and update 
 
 **Files to check:**
 
-| File | Update when |
-|------|-------------|
-| `README.md` | New features, changed setup steps, new scripts, new environment variables, updated project structure, or modified user-facing behavior |
+| File        | Update when                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `README.md` | New features, changed setup steps, new scripts, new environment variables, updated project structure, or modified user-facing behavior                             |
 | `AGENTS.md` | New or changed conventions, module exports, component APIs, architectural patterns, data flows, or anything an AI agent needs to know when working in the codebase |
 
 **Rules:**
@@ -124,7 +120,7 @@ The file is a JSON array of release entry objects, newest first. Prepend the new
 
 **Writing changelog descriptions:**
 
-Transform raw commit messages into user-friendly language. The goal is descriptions a non-technical stakeholder can understand.
+Transform raw commit messages into user-friendly language. The goal is descriptions that a non-technical stakeholder can understand.
 
 - Lead with the user-visible outcome, not the implementation detail.
 - Use past tense ("Added", "Fixed", "Improved").
@@ -132,13 +128,13 @@ Transform raw commit messages into user-friendly language. The goal is descripti
 - Merge related commits into a single description when they represent one logical change.
 - Filter noise: exclude commits that are purely internal (dependency bumps, CI config, test-only changes) unless they are the *only* changes on the branch — in that case, categorize them under `internal`.
 
-| Commit message | Changelog description |
-|---|---|
-| `fix: off-by-one in weekly rollup calc` | Fixed off-by-one error in weekly rollup |
-| `feat(dashboard): add cadence heatmap grid` | Added team cadence heatmap grid to the dashboard |
+| Commit message                                  | Changelog description                                       |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| `fix: off-by-one in weekly rollup calc`         | Fixed off-by-one error in weekly rollup                     |
+| `feat(dashboard): add cadence heatmap grid`     | Added team cadence heatmap grid to the dashboard            |
 | `refactor: extract date utils to shared module` | *(internal)* Refactored date utilities into a shared module |
-| `perf: memoize contributor sort` | Improved contributor table rendering performance |
-| `fix: tooltip flickers on hover in Safari` | Fixed tooltip flickering on hover in Safari |
+| `perf: memoize contributor sort`                | Improved contributor table rendering performance            |
+| `fix: tooltip flickers on hover in Safari`      | Fixed tooltip flickering on hover in Safari                 |
 
 ## Step 6 — Open the PR
 
@@ -163,3 +159,4 @@ Print a short summary:
 - Quality gates: which ran and their result (pass / skipped / fixed)
 - Changelog version bump (e.g. `0.1.0 → 0.2.0`)
 - Any warnings encountered during the run
+
