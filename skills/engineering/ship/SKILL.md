@@ -1,6 +1,10 @@
 ---
 name: ship
 description: Validate a branch, run quality gates, update documentation and changelog, and open a pull request. Use when the user says "ship", "ship this", "open a PR", "prepare a PR", "send this for review", "let's ship it", or any variation of wanting to finalize work and create a pull request.
+license: MIT
+metadata:
+  author: jcottam
+  version: "1.0.0"
 ---
 
 # Ship
