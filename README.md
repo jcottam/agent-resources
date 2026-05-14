@@ -37,6 +37,12 @@ npx skills update
 |-------|-------------|
 | [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
 
+### Thinking
+
+| Skill | Description |
+|-------|-------------|
+| [advisor](./skills/thinking/advisor/SKILL.md) | Rigorous, no-nonsense advisory mode. Eliminates sycophancy, enforces intellectual honesty, and produces thorough analysis with explicit confidence levels. |
+
 ---
 
 ## Rules
