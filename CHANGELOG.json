@@ -1,5 +1,23 @@
 [
   {
+    "version": "0.2.0",
+    "date": "2026-05-14",
+    "pr": {
+      "number": 2,
+      "title": "Add advisor skill for rigorous, no-nonsense analysis",
+      "url": "https://github.com/jcottam/agent-resources/pull/2"
+    },
+    "changes": {
+      "features": [
+        "Added advisor skill for rigorous, no-nonsense analysis with anti-sycophancy rules, cognitive debiasing, and explicit confidence levels"
+      ],
+      "improvements": [
+        "Added AGENTS.md for cross-agent project conventions",
+        "Simplified CLAUDE.md to reference AGENTS.md as single source of truth"
+      ]
+    }
+  },
+  {
     "version": "0.1.0",
     "date": "2026-05-11",
     "pr": {
