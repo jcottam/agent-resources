@@ -67,6 +67,7 @@ Other skills and tools worth checking out.
 | [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
 | [squirrelscan/squirrelscan](https://github.com/squirrelscan/squirrelscan) | Website auditing tool built for agent and LLM workflows. |
+| [JimLiu/baoyu-skills](https://github.com/JimLiu/baoyu-skills) | Content creation skills -- infographics, image cards, markdown formatting, and HTML conversion. |
 | [Introduction to Agent Skills](https://anthropic.skilljar.com/introduction-to-agent-skills) | Anthropic's course on writing and using agent skills. |
 
 ## Contributing
