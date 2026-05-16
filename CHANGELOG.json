@@ -2,7 +2,11 @@
   {
     "version": "0.6.0",
     "date": "2026-05-16",
-    "pr": null,
+    "pr": {
+      "number": 7,
+      "title": "Harden ship skill: fix ESM, kill force-push, add CHANGELOG.md support",
+      "url": "https://github.com/jcottam/agent-resources/pull/7"
+    },
     "changes": {
       "improvements": [
         "Ship skill now supports CHANGELOG.md alongside CHANGELOG.json, defaulting to markdown for new projects",
