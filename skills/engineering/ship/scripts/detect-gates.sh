@@ -9,6 +9,13 @@ set -euo pipefail
 
 ROOT="${1:-.}"
 
+# --- check for package.json --------------------------------------------------
+
+if [[ ! -f "$ROOT/package.json" ]]; then
+  jq -n '{ pm: null, gates: [], noPackageJson: true }'
+  exit 0
+fi
+
 # --- package manager ----------------------------------------------------------
 
 detect_pm() {
@@ -25,7 +32,6 @@ PM=$(detect_pm)
 
 has_script() {
   local name="$1"
-  [[ -f "$ROOT/package.json" ]] || return 1
   node -e "
     const pkg = require('$ROOT/package.json');
     process.exit(pkg.scripts && pkg.scripts['$name'] ? 0 : 1);

@@ -1,10 +1,10 @@
 ---
 name: ship
-description: Validate a branch, run quality gates, update documentation and changelog, and open a pull request. Use when the user says "ship", "ship this", "open a PR", "prepare a PR", "send this for review", "let's ship it", or any variation of wanting to finalize work and create a pull request.
+description: Validate a branch, run quality gates, update documentation and changelog, and open a pull request. Designed for JavaScript/TypeScript projects; quality gate detection requires package.json. Use when the user says "ship", "ship this", "open a PR", "prepare a PR", "send this for review", "let's ship it", or any variation of wanting to finalize work and create a pull request.
 license: MIT
 metadata:
   author: jcottam
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Ship
@@ -28,9 +28,9 @@ Run `command -v git && command -v gh && command -v jq && command -v node` to che
 
 Then run `gh auth status` to confirm the GitHub CLI is authenticated. If it reports no active account, stop and instruct the user to run `gh auth login` first.
 
-## Step 1 — Git health check
+## Step 1 — Preflight
 
-Run `$SCRIPTS/preflight.sh` and parse the JSON output.
+Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default branch, rebases, checks for uncommitted changes, counts commits ahead, and detects an existing PR — all in one call.
 
 - If `uncommittedChanges` is `true`, stop and ask the user to commit or stash.
 - If `onDefaultBranch` is `true`, create a new branch:
@@ -38,6 +38,8 @@ Run `$SCRIPTS/preflight.sh` and parse the JSON output.
   - Pick the appropriate prefix from the table below.
   - Generate a short, descriptive slug from the changes (e.g. `feature/add-team-cadence-grid`).
   - Run `git checkout -b <prefix>/<slug>`.
+- If `rebaseStatus` is `"conflicts"`, stop and report the conflicting files from `conflictFiles` to the user. Do not attempt to resolve merge conflicts automatically.
+- If `rebaseStatus` is `"clean"`, proceed.
 - If `commitsAhead` is `0`, stop — there is nothing to ship.
 
 **Branch prefixes:**
@@ -52,16 +54,11 @@ Run `$SCRIPTS/preflight.sh` and parse the JSON output.
 | `test/`     | Adding or updating tests with no production code changes |
 | `perf/`     | Performance improvements                                 |
 
-## Step 2 — Sync with upstream
-
-Run `$SCRIPTS/preflight.sh --rebase` and check `rebaseStatus` in the JSON output.
-
-- `"clean"` — proceed.
-- `"conflicts"` — stop and report the conflicting files from `conflictFiles` to the user. Do not attempt to resolve merge conflicts automatically.
-
-## Step 3 — Quality gates
+## Step 2 — Quality gates
 
 Run `$SCRIPTS/detect-gates.sh` and parse the JSON output. The `gates` array contains each detected gate's `name` and `command`.
+
+- If `noPackageJson` is `true`, warn the user that no quality gates were detected because this does not appear to be a JavaScript/TypeScript project. Ask if they want to proceed without gates or provide manual commands to run.
 
 **Execution rules:**
 
@@ -70,9 +67,9 @@ Run `$SCRIPTS/detect-gates.sh` and parse the JSON output. The `gates` array cont
 - If a fix requires user input or judgment, stop and report the failure with context.
 - If `gates` is empty, skip this step and note it in the final report.
 
-## Step 4 — Documentation
+## Step 3 — Documentation
 
-Review the changes on the branch (`git diff <default-branch>..HEAD`) and update project documentation to reflect anything new, changed, or removed. Follow the `/technical-writer` skill for writing style and structure.
+Review the changes on the branch (`git diff <default-branch>..HEAD`) and update project documentation to reflect anything new, changed, or removed.
 
 **Files to check:**
 
@@ -86,16 +83,20 @@ Review the changes on the branch (`git diff <default-branch>..HEAD`) and update 
 - Read each file first to understand its current structure and voice.
 - Only update sections that are affected by the changes on the branch. Do not rewrite unrelated content.
 - Match the existing heading hierarchy, formatting, and level of detail.
+- Write for a developer audience. Be direct and specific. Avoid marketing language.
 - Use active voice and present tense. Keep sentences under 25 words.
 - Lead with what the user or developer gains, not how the implementation works.
+- Do not document internal implementation details, private functions, or architecture decisions that are only relevant to the current change — those belong in commit messages or PR descriptions, not README/AGENTS.
 - Include practical examples (commands, config snippets, code) for any new capability.
 - Use `code formatting` for commands, variables, and filenames. Use **bold** for UI elements.
 - If neither file needs changes (e.g. a pure refactor with no public-facing impact), skip this step.
 - Commit documentation updates to the current branch before proceeding.
 
-## Step 5 — Changelog
+## Step 4 — Changelog
 
-Run `$SCRIPTS/changelog-bump.sh info` to get the current version.
+Run `$SCRIPTS/changelog-bump.sh info` to get the current version and changelog format.
+
+The script auto-detects the changelog format: it uses `CHANGELOG.json` if one exists, otherwise defaults to `CHANGELOG.md`. The `format` field in the output indicates which format is active.
 
 Decide the bump level based on the changes:
 - `patch` — fixes only
@@ -128,22 +129,22 @@ Then run:
 $SCRIPTS/changelog-bump.sh bump <level> '<changes-json>'
 ```
 
-This creates or updates `CHANGELOG.json` with the new entry (the `pr` field is `null` — it gets back-filled in Step 6).
+If the script output has `"updated": true`, it patched an existing draft entry (from a previous interrupted run) instead of creating a new one.
 
-## Step 6 — Open the PR
+## Step 5 — Open the PR
 
 Use the `prExists` and `pr` fields from the Step 1 preflight output to decide whether to create or update.
 
-1. `git add CHANGELOG.json && git commit -m "chore: add changelog entry"`.
+1. Commit the changelog: `git add CHANGELOG.json CHANGELOG.md 2>/dev/null; git add -u && git commit -m "chore: add changelog entry"`.
 2. `git push -u origin HEAD`.
 3. Create or update the PR:
    - **New PR**: `gh pr create` with a title and body derived from the commit log.
    - **Existing PR**: `gh pr edit` to update the title and body if the changelog or commits have changed. Push any new commits.
    - **Title**: a concise summary of the branch's changes.
    - **Body**: a `## Summary` section with 1-3 bullet points describing the changes, and a `## Test plan` section with a checklist of verification steps.
-4. Run `$SCRIPTS/backfill-pr.sh` to patch the PR metadata into `CHANGELOG.json`, amend the commit, and force-push.
+4. Run `$SCRIPTS/backfill-pr.sh` to patch the PR metadata into the changelog and push a follow-up commit.
 
-## Step 7 — Post-flight report
+## Step 6 — Post-flight report
 
 Print a short summary:
 
