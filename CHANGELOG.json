@@ -1,5 +1,25 @@
 [
   {
+    "version": "0.5.0",
+    "date": "2026-05-16",
+    "pr": {
+      "number": 6,
+      "title": "Rename publish skill to host and fix --remote flag",
+      "url": "https://github.com/jcottam/agent-resources/pull/6"
+    },
+    "changes": {
+      "fixes": [
+        "Fixed publish skill uploading to local R2 simulator instead of remote Cloudflare bucket by adding the required --remote flag"
+      ],
+      "improvements": [
+        "Renamed skill from \"publish\" to \"host\" for clearer intent",
+        "Switched from npx to direct wrangler invocation for faster, more reliable uploads",
+        "Added Wrangler installation check and auto-install prompt to setup script",
+        "Surfaced upload errors instead of silencing them"
+      ]
+    }
+  },
+  {
     "version": "0.4.1",
     "date": "2026-05-16",
     "pr": {
