@@ -24,7 +24,7 @@ fi
 
 # --- fetch PR metadata --------------------------------------------------------
 
-PR_DATA=$(gh pr view HEAD --json number,title,url 2>/dev/null || echo "")
+PR_DATA=$(gh pr view --json number,title,url 2>/dev/null || echo "")
 
 if [[ -z "$PR_DATA" ]]; then
   echo '{"error": "No PR found for HEAD"}' >&2

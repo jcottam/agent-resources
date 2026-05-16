@@ -75,7 +75,7 @@ fi
 
 # --- existing PR --------------------------------------------------------------
 
-PR_JSON=$(gh pr view HEAD --json url,number,title 2>/dev/null || echo "")
+PR_JSON=$(gh pr view --json url,number,title 2>/dev/null || echo "")
 if [[ -n "$PR_JSON" ]]; then
   PR_EXISTS=true
 else
