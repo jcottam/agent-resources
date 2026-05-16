@@ -92,7 +92,12 @@ for i, entry in enumerate(matches):
 
   prune)
     ensure_history
-    echo "Reading config for bucket name..."
+
+    if ! command -v wrangler &>/dev/null; then
+      echo "Error: wrangler CLI is not installed" >&2
+      echo "Install it with: npm install -g wrangler" >&2
+      exit 1
+    fi
 
     CONFIG_FILE="$HOME/.publish.json"
     if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -121,7 +126,7 @@ removed = 0
 for entry in history:
     key = entry['key']
     result = subprocess.run(
-        ['npx', 'wrangler', 'r2', 'object', 'get', f'{bucket}/{key}', '--file', '/dev/null'],
+        ['wrangler', 'r2', 'object', 'get', f'{bucket}/{key}', '--file', '/dev/null', '--remote'],
         capture_output=True, text=True
     )
     if result.returncode == 0:

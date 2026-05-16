@@ -1,5 +1,24 @@
 [
   {
+    "version": "0.4.1",
+    "date": "2026-05-16",
+    "pr": {
+      "number": 5,
+      "title": "fix(publish): add --remote flag and require Wrangler CLI",
+      "url": "https://github.com/jcottam/agent-resources/pull/5"
+    },
+    "changes": {
+      "fixes": [
+        "Fixed publish skill uploading to local R2 simulator instead of remote Cloudflare bucket by adding the required --remote flag to all wrangler commands"
+      ],
+      "improvements": [
+        "Switched from npx to direct wrangler invocation for faster, more reliable uploads",
+        "Added Wrangler installation check and auto-install prompt to setup script",
+        "Surfaced upload errors instead of silencing them"
+      ]
+    }
+  },
+  {
     "version": "0.4.0",
     "date": "2026-05-16",
     "pr": {

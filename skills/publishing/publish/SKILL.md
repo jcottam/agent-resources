@@ -10,7 +10,7 @@ description: >-
 license: MIT
 metadata:
   author: jcottam
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Publish
@@ -21,13 +21,39 @@ Upload any file to Cloudflare R2 and get back a shareable public URL.
 
 ## Prerequisites
 
-- **Node.js** (for `npx wrangler`)
-- **Cloudflare account** with an R2 bucket that has public access enabled
-- **Wrangler auth** via one of:
-  - `wrangler login` (interactive OAuth -- run once, persists in `~/.wrangler`)
+- **Wrangler CLI** — the Cloudflare developer CLI used for all R2 operations
+- **Cloudflare account** with an R2 bucket that has public access enabled (r2.dev subdomain or custom domain)
+- **Wrangler authenticated** via one of:
+  - `wrangler login` (interactive OAuth — run once, token persists in `~/.wrangler`)
   - `CLOUDFLARE_API_TOKEN` environment variable
 
-## Step 1 — Check configuration
+## Step 1 — Check prerequisites
+
+### Wrangler installation
+
+Check if `wrangler` is available:
+
+```bash
+wrangler --version
+```
+
+If not installed, install it globally:
+
+```bash
+npm install -g wrangler
+```
+
+### Wrangler authentication
+
+Verify auth status:
+
+```bash
+wrangler whoami
+```
+
+If not authenticated, the user must run `wrangler login` interactively (opens a browser for OAuth). This is a one-time step.
+
+### Publish configuration
 
 Look for `~/.publish.json`. If it doesn't exist, run `$SCRIPTS/setup.sh` and walk the user through the prompts. The setup script creates the config file with:
 
@@ -73,14 +99,17 @@ $SCRIPTS/publish.sh <file-path> [--key <custom-key>]
 The script:
 1. Reads `~/.publish.json` for bucket name and public URL base
 2. Detects the content type from the file extension
-3. Uploads via `npx wrangler r2 object put <bucket>/<key> --file <path> --content-type <type>`
+3. Uploads via `wrangler r2 object put <bucket>/<key> --file <path> --content-type <type> --remote`
 4. Constructs the public URL: `<publicBaseUrl>/<key>`
 5. Copies the URL to the clipboard (`pbcopy` on macOS, `xclip`/`xsel` on Linux)
 6. Appends an entry to `~/.publish-history.json`
 7. Outputs JSON with `url`, `key`, `contentType`, `size`, and `publishedAt`
 
+**Important:** The `--remote` flag is required. Without it, Wrangler uploads to a local R2 simulator instead of the actual Cloudflare R2 bucket.
+
 If the script exits non-zero, report the error to the user. Common issues:
-- **Not authenticated**: suggest running `wrangler login` or setting `CLOUDFLARE_API_TOKEN`
+- **Wrangler not installed**: suggest `npm install -g wrangler`
+- **Not authenticated**: suggest running `wrangler login`
 - **Bucket not found**: confirm the bucket name in `~/.publish.json` and that public access is enabled
 - **File not found**: re-check the file path
 

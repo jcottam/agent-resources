@@ -50,6 +50,14 @@ if [[ ! -f "$FILE_PATH" ]]; then
   exit 1
 fi
 
+# --- Check Wrangler ---
+
+if ! command -v wrangler &>/dev/null; then
+  echo "Error: wrangler CLI is not installed" >&2
+  echo "Install it with: npm install -g wrangler" >&2
+  exit 1
+fi
+
 # --- Read config ---
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -114,7 +122,6 @@ generate_slug() {
   local name="${filename%.*}"
   local ext="${filename##*.}"
 
-  # Lowercase, replace non-alphanumeric with hyphens, collapse multiples, trim edges
   local slug
   slug=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
 
@@ -133,11 +140,15 @@ fi
 CONTENT_TYPE=$(detect_content_type "$FILE_PATH")
 FILE_SIZE=$(wc -c < "$FILE_PATH" | tr -d ' ')
 
-# --- Upload ---
+# --- Upload to remote R2 ---
 
-npx wrangler r2 object put "${BUCKET}/${KEY}" \
+if ! wrangler r2 object put "${BUCKET}/${KEY}" \
   --file "$FILE_PATH" \
-  --content-type "$CONTENT_TYPE" >/dev/null 2>&1
+  --content-type "$CONTENT_TYPE" \
+  --remote 2>&1; then
+  echo "Error: upload failed" >&2
+  exit 1
+fi
 
 PUBLIC_URL="${PUBLIC_BASE_URL}/${KEY}"
 
