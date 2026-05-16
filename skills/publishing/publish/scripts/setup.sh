@@ -6,6 +6,29 @@ CONFIG_FILE="$HOME/.publish.json"
 echo "=== Publish Skill Setup ==="
 echo ""
 
+# --- Check Wrangler ---
+
+if ! command -v wrangler &>/dev/null; then
+  echo "Wrangler CLI is not installed."
+  echo ""
+  read -rp "Install wrangler globally via npm? [Y/n] " install_confirm
+  if [[ "$install_confirm" =~ ^[Nn]$ ]]; then
+    echo ""
+    echo "Wrangler is required. Install it manually with:"
+    echo "  npm install -g wrangler"
+    exit 1
+  fi
+  echo ""
+  echo "Installing wrangler..."
+  npm install -g wrangler
+  echo ""
+fi
+
+echo "Wrangler $(wrangler --version 2>&1 | head -1)"
+echo ""
+
+# --- Check existing config ---
+
 if [[ -f "$CONFIG_FILE" ]]; then
   echo "Existing config found at $CONFIG_FILE:"
   cat "$CONFIG_FILE"
@@ -65,17 +88,14 @@ echo ""
 # --- Check wrangler auth ---
 
 echo "Checking wrangler authentication..."
-if npx wrangler whoami &>/dev/null 2>&1; then
+if wrangler whoami &>/dev/null 2>&1; then
   echo "Wrangler is authenticated."
 else
   echo ""
-  echo "Wrangler is not authenticated. You have two options:"
+  echo "Wrangler is not authenticated."
   echo ""
-  echo "  1. Run: npx wrangler login"
-  echo "     (Interactive OAuth -- opens your browser)"
-  echo ""
-  echo "  2. Set the CLOUDFLARE_API_TOKEN environment variable"
-  echo "     (Create a token at https://dash.cloudflare.com/profile/api-tokens)"
+  echo "Run the following to authorize (opens your browser):"
+  echo "  wrangler login"
   echo ""
 fi
 
