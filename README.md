@@ -41,7 +41,7 @@ npx skills update
 
 | Skill | Description |
 |-------|-------------|
-| [publish](./skills/publishing/publish/SKILL.md) | Upload files to Cloudflare R2 and return a shareable public URL with slug naming, clipboard copy, and publish history. |
+| [host](./skills/publishing/host/SKILL.md) | Upload files to Cloudflare R2 and return a shareable public URL with slug naming, clipboard copy, and hosting history. |
 
 ### Thinking
 

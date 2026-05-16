@@ -5,7 +5,7 @@ CONFIG_FILE="$HOME/.publish.json"
 HISTORY_FILE="$HOME/.publish-history.json"
 
 usage() {
-  echo "Usage: publish.sh <file-path> [--key <custom-key>]"
+  echo "Usage: host.sh <file-path> [--key <custom-key>]"
   echo ""
   echo "Upload a file to Cloudflare R2 and return a public URL."
   echo ""
