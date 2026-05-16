@@ -1,5 +1,19 @@
 [
   {
+    "version": "0.4.0",
+    "date": "2026-05-16",
+    "pr": {
+      "number": 4,
+      "title": "Add prerequisites check to ship skill",
+      "url": "https://github.com/jcottam/agent-resources/pull/4"
+    },
+    "changes": {
+      "features": [
+        "Added prerequisites check to the ship skill that verifies git, gh, jq, and node are installed and authenticated before running"
+      ]
+    }
+  },
+  {
     "version": "0.3.0",
     "date": "2026-05-16",
     "pr": {
