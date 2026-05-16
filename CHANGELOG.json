@@ -1,5 +1,19 @@
 [
   {
+    "version": "0.3.0",
+    "date": "2026-05-16",
+    "pr": {
+      "number": 3,
+      "title": "Add publish skill for uploading files to Cloudflare R2",
+      "url": "https://github.com/jcottam/agent-resources/pull/3"
+    },
+    "changes": {
+      "features": [
+        "Added publish skill for uploading files to Cloudflare R2 and sharing via public URL"
+      ]
+    }
+  },
+  {
     "version": "0.2.0",
     "date": "2026-05-14",
     "pr": {

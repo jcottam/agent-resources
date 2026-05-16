@@ -37,6 +37,12 @@ npx skills update
 |-------|-------------|
 | [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
 
+### Publishing
+
+| Skill | Description |
+|-------|-------------|
+| [publish](./skills/publishing/publish/SKILL.md) | Upload files to Cloudflare R2 and return a shareable public URL with slug naming, clipboard copy, and publish history. |
+
 ### Thinking
 
 | Skill | Description |
