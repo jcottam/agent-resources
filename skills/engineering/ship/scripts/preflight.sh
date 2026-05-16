@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Gathers git state needed by the ship skill and optionally rebases on the
-# default branch.  Outputs a single JSON object to stdout.
+# Gathers git state needed by the ship skill: fetches the default branch,
+# counts commits ahead, checks for an existing PR, and rebases (by default).
+# Outputs a single JSON object to stdout.
 #
 # Usage:
-#   preflight.sh              # health check only
-#   preflight.sh --rebase     # health check + fetch & rebase
+#   preflight.sh              # health check + fetch + rebase (default)
+#   preflight.sh --no-rebase  # health check + fetch only, skip rebase
 
-REBASE=false
+REBASE=true
 for arg in "$@"; do
   case "$arg" in
-    --rebase) REBASE=true ;;
+    --no-rebase) REBASE=false ;;
   esac
 done
 
@@ -46,7 +47,24 @@ else
   HAS_UNCOMMITTED=false
 fi
 
-# --- commits ahead ------------------------------------------------------------
+# --- fetch + rebase -----------------------------------------------------------
+
+git fetch origin "$DEFAULT_BRANCH" --quiet
+
+REBASE_STATUS="skipped"
+CONFLICT_FILES="[]"
+
+if [[ "$REBASE" == true ]]; then
+  if git rebase "origin/$DEFAULT_BRANCH" --quiet 2>/dev/null; then
+    REBASE_STATUS="clean"
+  else
+    REBASE_STATUS="conflicts"
+    CONFLICT_FILES=$(git diff --name-only --diff-filter=U | jq -R -s 'split("\n") | map(select(. != ""))')
+    git rebase --abort 2>/dev/null || true
+  fi
+fi
+
+# --- commits ahead (counted after fetch so the ref is current) ----------------
 
 COMMITS_AHEAD=$(git rev-list --count "origin/$DEFAULT_BRANCH..HEAD" 2>/dev/null || echo 0)
 
@@ -57,28 +75,12 @@ fi
 
 # --- existing PR --------------------------------------------------------------
 
-PR_JSON=$(gh pr view HEAD --json url,number,title 2>/dev/null || echo "")
+PR_JSON=$(gh pr view --json url,number,title 2>/dev/null || echo "")
 if [[ -n "$PR_JSON" ]]; then
   PR_EXISTS=true
 else
   PR_EXISTS=false
   PR_JSON="null"
-fi
-
-# --- rebase (optional) --------------------------------------------------------
-
-REBASE_STATUS="skipped"
-CONFLICT_FILES="[]"
-
-if [[ "$REBASE" == true ]]; then
-  git fetch origin "$DEFAULT_BRANCH" --quiet
-  if git rebase "origin/$DEFAULT_BRANCH" --quiet 2>/dev/null; then
-    REBASE_STATUS="clean"
-  else
-    REBASE_STATUS="conflicts"
-    CONFLICT_FILES=$(git diff --name-only --diff-filter=U | jq -R -s 'split("\n") | map(select(. != ""))')
-    git rebase --abort 2>/dev/null || true
-  fi
 fi
 
 # --- output -------------------------------------------------------------------

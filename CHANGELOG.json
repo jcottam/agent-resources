@@ -1,5 +1,26 @@
 [
   {
+    "version": "0.6.0",
+    "date": "2026-05-16",
+    "pr": {
+      "number": 7,
+      "title": "Harden ship skill: fix ESM, kill force-push, add CHANGELOG.md support",
+      "url": "https://github.com/jcottam/agent-resources/pull/7"
+    },
+    "changes": {
+      "improvements": [
+        "Ship skill now supports CHANGELOG.md alongside CHANGELOG.json, defaulting to markdown for new projects",
+        "Preflight now fetches and rebases in a single call, eliminating stale remote ref counts",
+        "Changelog writes are idempotent — interrupted runs update the existing draft entry instead of duplicating"
+      ],
+      "fixes": [
+        "Fixed ESM compatibility in changelog scripts (replaced require() with fs.readFileSync)",
+        "Replaced amend + force-push backfill with a two-commit flow to avoid resetting CI status checks",
+        "Quality gate detection now warns explicitly when no package.json is found instead of silently skipping"
+      ]
+    }
+  },
+  {
     "version": "0.5.0",
     "date": "2026-05-16",
     "pr": {

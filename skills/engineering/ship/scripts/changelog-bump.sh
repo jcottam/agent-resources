@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Manages CHANGELOG.json: reads the current version, computes the next version,
-# and prepends a new entry skeleton.
+# Manages the project changelog: reads the current version, computes the next
+# version, and prepends a new entry.  Supports both CHANGELOG.json and
+# CHANGELOG.md (defaults to MD when neither exists).
 #
 # Usage:
 #   changelog-bump.sh info                   # print current version + path
@@ -13,22 +14,66 @@ set -euo pipefail
 #
 # Outputs JSON to stdout with the result of the operation.
 
-CHANGELOG="CHANGELOG.json"
 ACTION="${1:-info}"
+
+# --- detect changelog format --------------------------------------------------
+
+if [[ -f "CHANGELOG.json" ]]; then
+  CHANGELOG="CHANGELOG.json"
+  FORMAT="json"
+else
+  CHANGELOG="CHANGELOG.md"
+  FORMAT="md"
+fi
 
 # --- ensure file exists -------------------------------------------------------
 
 if [[ ! -f "$CHANGELOG" ]]; then
-  echo "[]" > "$CHANGELOG"
+  if [[ "$FORMAT" == "json" ]]; then
+    echo "[]" > "$CHANGELOG"
+  else
+    printf "# Changelog\n\nAll notable changes to this project.\n" > "$CHANGELOG"
+  fi
 fi
 
 # --- read current version -----------------------------------------------------
 
 current_version() {
-  node -e "
-    const cl = require('./$CHANGELOG');
-    console.log(cl.length > 0 && cl[0].version ? cl[0].version : '0.0.0');
-  "
+  if [[ "$FORMAT" == "json" ]]; then
+    node -e "
+      const fs = require('fs');
+      const cl = JSON.parse(fs.readFileSync('./$CHANGELOG', 'utf8'));
+      console.log(cl.length > 0 && cl[0].version ? cl[0].version : '0.0.0');
+    "
+  else
+    node -e "
+      const fs = require('fs');
+      const md = fs.readFileSync('./$CHANGELOG', 'utf8');
+      const m = md.match(/^## \[([^\]]+)\]/m);
+      console.log(m ? m[1] : '0.0.0');
+    "
+  fi
+}
+
+# --- check if latest entry matches the target version (interrupted run) ------
+
+latest_matches_version() {
+  local target="$1"
+  if [[ "$FORMAT" == "json" ]]; then
+    node -e "
+      const fs = require('fs');
+      const cl = JSON.parse(fs.readFileSync('./$CHANGELOG', 'utf8'));
+      const match = cl.length > 0 && cl[0].version === '$target';
+      console.log(match ? 'true' : 'false');
+    "
+  else
+    node -e "
+      const fs = require('fs');
+      const md = fs.readFileSync('./$CHANGELOG', 'utf8');
+      const m = md.match(/^## \[([^\]]+)\]/m);
+      console.log(m && m[1] === '$target' ? 'true' : 'false');
+    "
+  fi
 }
 
 # --- bump version -------------------------------------------------------------
@@ -49,7 +94,8 @@ bump_version() {
 case "$ACTION" in
   info)
     CURRENT=$(current_version)
-    jq -n --arg v "$CURRENT" --arg f "$CHANGELOG" '{ currentVersion: $v, file: $f }'
+    jq -n --arg v "$CURRENT" --arg f "$CHANGELOG" --arg fmt "$FORMAT" \
+      '{ currentVersion: $v, file: $f, format: $fmt }'
     ;;
 
   bump)
@@ -58,25 +104,77 @@ case "$ACTION" in
     CURRENT=$(current_version)
     NEXT=$(bump_version "$CURRENT" "$LEVEL")
     TODAY=$(date +%Y-%m-%d)
+    MATCHES=$(latest_matches_version "$NEXT")
+    UPDATED=false
 
-    node -e "
-      const fs = require('fs');
-      const cl = JSON.parse(fs.readFileSync('$CHANGELOG', 'utf8'));
-      const entry = {
-        version: '$NEXT',
-        date: '$TODAY',
-        pr: null,
-        changes: $CHANGES
-      };
-      cl.unshift(entry);
-      fs.writeFileSync('$CHANGELOG', JSON.stringify(cl, null, 2) + '\n');
-    "
+    if [[ "$FORMAT" == "json" ]]; then
+      if [[ "$MATCHES" == "true" ]]; then
+        UPDATED=true
+        node -e "
+          const fs = require('fs');
+          const cl = JSON.parse(fs.readFileSync('$CHANGELOG', 'utf8'));
+          cl[0].date = '$TODAY';
+          cl[0].changes = $CHANGES;
+          fs.writeFileSync('$CHANGELOG', JSON.stringify(cl, null, 2) + '\n');
+        "
+      else
+        node -e "
+          const fs = require('fs');
+          const cl = JSON.parse(fs.readFileSync('$CHANGELOG', 'utf8'));
+          const entry = {
+            version: '$NEXT',
+            date: '$TODAY',
+            changes: $CHANGES
+          };
+          cl.unshift(entry);
+          fs.writeFileSync('$CHANGELOG', JSON.stringify(cl, null, 2) + '\n');
+        "
+      fi
+    else
+      if [[ "$MATCHES" == "true" ]]; then
+        UPDATED=true
+        node -e "
+          const fs = require('fs');
+          let md = fs.readFileSync('$CHANGELOG', 'utf8');
+          const changes = $CHANGES;
+          let section = '## [$NEXT] - $TODAY\n';
+          for (const [cat, items] of Object.entries(changes)) {
+            const heading = cat.charAt(0).toUpperCase() + cat.slice(1);
+            section += '\n### ' + heading + '\n\n';
+            for (const item of items) section += '- ' + item + '\n';
+          }
+          md = md.replace(/^## \[[^\]]+\][\s\S]*?(?=^## \[|\Z)/m, section + '\n');
+          fs.writeFileSync('$CHANGELOG', md);
+        "
+      else
+        node -e "
+          const fs = require('fs');
+          let md = fs.readFileSync('$CHANGELOG', 'utf8');
+          const changes = $CHANGES;
+          let section = '## [$NEXT] - $TODAY\n';
+          for (const [cat, items] of Object.entries(changes)) {
+            const heading = cat.charAt(0).toUpperCase() + cat.slice(1);
+            section += '\n### ' + heading + '\n\n';
+            for (const item of items) section += '- ' + item + '\n';
+          }
+          const marker = md.indexOf('## [');
+          if (marker === -1) {
+            md = md.trimEnd() + '\n\n' + section;
+          } else {
+            md = md.slice(0, marker) + section + '\n' + md.slice(marker);
+          }
+          fs.writeFileSync('$CHANGELOG', md);
+        "
+      fi
+    fi
 
     jq -n \
       --arg prev "$CURRENT" \
       --arg next "$NEXT" \
       --arg date "$TODAY" \
-      '{ previousVersion: $prev, newVersion: $next, date: $date }'
+      --arg fmt "$FORMAT" \
+      --argjson updated "$UPDATED" \
+      '{ previousVersion: $prev, newVersion: $next, date: $date, format: $fmt, updated: $updated }'
     ;;
 
   *)
