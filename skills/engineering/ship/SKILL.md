@@ -13,6 +13,21 @@ Pre-flight checklist that validates the branch, runs quality gates, updates docu
 
 `SCRIPTS` below refers to the `scripts/` directory next to this file.
 
+## Step 0 — Prerequisites
+
+Verify that all required CLI tools are installed and authenticated before proceeding.
+
+Run `command -v git && command -v gh && command -v jq && command -v node` to check availability. If any tool is missing, stop and tell the user which tool(s) need to be installed.
+
+| Tool   | Purpose                          | Install hint                                      |
+| ------ | -------------------------------- | ------------------------------------------------- |
+| `git`  | Branch ops, commits, push        | https://git-scm.com/downloads                     |
+| `gh`   | GitHub PR create/view/edit       | `brew install gh` or https://cli.github.com       |
+| `jq`   | JSON parsing in shell scripts    | `brew install jq` or https://jqlang.github.io/jq  |
+| `node` | Inline JS for changelog and gates| https://nodejs.org                                |
+
+Then run `gh auth status` to confirm the GitHub CLI is authenticated. If it reports no active account, stop and instruct the user to run `gh auth login` first.
+
 ## Step 1 — Git health check
 
 Run `$SCRIPTS/preflight.sh` and parse the JSON output.
