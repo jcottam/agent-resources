@@ -55,24 +55,23 @@ current_version() {
   fi
 }
 
-# --- check if latest entry is a draft (pr: null / no PR link) ----------------
+# --- check if latest entry matches the target version (interrupted run) ------
 
-latest_is_draft() {
+latest_matches_version() {
+  local target="$1"
   if [[ "$FORMAT" == "json" ]]; then
     node -e "
       const fs = require('fs');
       const cl = JSON.parse(fs.readFileSync('./$CHANGELOG', 'utf8'));
-      const draft = cl.length > 0 && cl[0].pr === null;
-      console.log(draft ? 'true' : 'false');
+      const match = cl.length > 0 && cl[0].version === '$target';
+      console.log(match ? 'true' : 'false');
     "
   else
     node -e "
       const fs = require('fs');
       const md = fs.readFileSync('./$CHANGELOG', 'utf8');
-      const m = md.match(/^## \[([^\]]+)\](.*)/m);
-      if (!m) { console.log('false'); process.exit(0); }
-      const hasLink = /\(#\d+\)/.test(m[2] || '');
-      console.log(hasLink ? 'false' : 'true');
+      const m = md.match(/^## \[([^\]]+)\]/m);
+      console.log(m && m[1] === '$target' ? 'true' : 'false');
     "
   fi
 }
@@ -105,16 +104,15 @@ case "$ACTION" in
     CURRENT=$(current_version)
     NEXT=$(bump_version "$CURRENT" "$LEVEL")
     TODAY=$(date +%Y-%m-%d)
-    IS_DRAFT=$(latest_is_draft)
+    MATCHES=$(latest_matches_version "$NEXT")
     UPDATED=false
 
     if [[ "$FORMAT" == "json" ]]; then
-      if [[ "$IS_DRAFT" == "true" ]]; then
+      if [[ "$MATCHES" == "true" ]]; then
         UPDATED=true
         node -e "
           const fs = require('fs');
           const cl = JSON.parse(fs.readFileSync('$CHANGELOG', 'utf8'));
-          cl[0].version = '$NEXT';
           cl[0].date = '$TODAY';
           cl[0].changes = $CHANGES;
           fs.writeFileSync('$CHANGELOG', JSON.stringify(cl, null, 2) + '\n');
@@ -126,7 +124,6 @@ case "$ACTION" in
           const entry = {
             version: '$NEXT',
             date: '$TODAY',
-            pr: null,
             changes: $CHANGES
           };
           cl.unshift(entry);
@@ -134,7 +131,7 @@ case "$ACTION" in
         "
       fi
     else
-      if [[ "$IS_DRAFT" == "true" ]]; then
+      if [[ "$MATCHES" == "true" ]]; then
         UPDATED=true
         node -e "
           const fs = require('fs');

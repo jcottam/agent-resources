@@ -131,18 +131,24 @@ $SCRIPTS/changelog-bump.sh bump <level> '<changes-json>'
 
 If the script output has `"updated": true`, it patched an existing draft entry (from a previous interrupted run) instead of creating a new one.
 
+After the script completes, amend the changelog into the last work commit so it does not create extra commits:
+
+```
+git add CHANGELOG.json CHANGELOG.md 2>/dev/null; git commit --amend --no-edit
+```
+
 ## Step 5 — Open the PR
 
 Use the `prExists` and `pr` fields from the Step 1 preflight output to decide whether to create or update.
 
-1. Commit the changelog: `git add CHANGELOG.json CHANGELOG.md 2>/dev/null; git add -u && git commit -m "chore: add changelog entry"`.
-2. `git push -u origin HEAD`.
-3. Create or update the PR:
+1. `git push -u origin HEAD`.
+2. Create or update the PR:
    - **New PR**: `gh pr create` with a title and body derived from the commit log.
    - **Existing PR**: `gh pr edit` to update the title and body if the changelog or commits have changed. Push any new commits.
    - **Title**: a concise summary of the branch's changes.
    - **Body**: a `## Summary` section with 1-3 bullet points describing the changes, and a `## Test plan` section with a checklist of verification steps.
-4. Run `$SCRIPTS/backfill-pr.sh` to patch the PR metadata into the changelog and push a follow-up commit.
+
+> **Optional:** Run `$SCRIPTS/backfill-pr.sh` after creating the PR to add a PR link to the changelog entry. This is not run by default — use it if your team wants PR traceability in the changelog.
 
 ## Step 6 — Post-flight report
 
