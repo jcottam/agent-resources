@@ -100,4 +100,4 @@ else
 fi
 
 echo ""
-echo "Setup complete. You can now use 'publish' to upload files."
+echo "Setup complete. You can now use 'host' to upload files."

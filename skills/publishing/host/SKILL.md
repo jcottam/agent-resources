@@ -1,19 +1,19 @@
 ---
-name: publish
+name: host
 description: >-
   Upload files to Cloudflare R2 and return a shareable public URL. Supports any
   file type (HTML, images, PDFs, etc.) with automatic slug generation, clipboard
-  copy, and publish history tracking. Use when the user says "publish",
-  "publish this", "share this file", "upload to R2", "make this public",
-  "get a shareable link", "host this", "deploy this file", "put this online",
+  copy, and hosting history tracking. Use when the user says "host", "host this",
+  "host file", "publish", "publish this", "share this file", "upload to R2",
+  "make this public", "get a shareable link", "deploy this file", "put this online",
   or any variation of wanting to make a file publicly accessible via URL.
 license: MIT
 metadata:
   author: jcottam
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
-# Publish
+# Host
 
 Upload any file to Cloudflare R2 and get back a shareable public URL.
 
@@ -53,7 +53,7 @@ wrangler whoami
 
 If not authenticated, the user must run `wrangler login` interactively (opens a browser for OAuth). This is a one-time step.
 
-### Publish configuration
+### Host configuration
 
 Look for `~/.publish.json`. If it doesn't exist, run `$SCRIPTS/setup.sh` and walk the user through the prompts. The setup script creates the config file with:
 
@@ -68,10 +68,10 @@ If the file exists, read it and parse the `bucket` and `publicBaseUrl` values. B
 
 ## Step 2 — Identify the asset
 
-Determine what file to publish from context:
+Determine what file to host from context:
 
 1. If the user specified a file path, use that.
-2. If the user said "publish this" without a path, check for:
+2. If the user said "host this" without a path, check for:
    - A file the user is currently viewing or recently created
    - A `.canvas.tsx` output or generated HTML file from the current session
 3. Verify the file exists before proceeding. If ambiguous, ask the user to clarify.
@@ -88,12 +88,12 @@ Decide the R2 object key (the path within the bucket):
 - **User override**: if the user provided a custom name, use it instead (sanitized).
 - **Collision check**: scan `~/.publish-history.json` for the key. If it exists, ask the user whether to overwrite or append a suffix (`-2`, `-3`, etc.).
 
-## Step 4 — Publish
+## Step 4 — Upload
 
-Run the publish script:
+Run the host script:
 
 ```bash
-$SCRIPTS/publish.sh <file-path> [--key <custom-key>]
+$SCRIPTS/host.sh <file-path> [--key <custom-key>]
 ```
 
 The script:
@@ -115,31 +115,31 @@ If the script exits non-zero, report the error to the user. Common issues:
 
 ## Step 5 — Report
 
-After a successful publish:
+After a successful upload:
 
 1. Print the public URL prominently.
 2. Confirm the URL was copied to the clipboard.
-3. Mention the entry was added to publish history.
+3. Mention the entry was added to history.
 
 Example output:
 
 ```
-Published: https://pub-xxx.r2.dev/sales-report-q1-2026-05-15.html
+Hosted: https://pub-xxx.r2.dev/sales-report-q1-2026-05-15.html
 Copied to clipboard.
 ```
 
-## Publish history
+## History
 
-Use `$SCRIPTS/history.sh` to interact with the local publish history at `~/.publish-history.json`.
+Use `$SCRIPTS/history.sh` to interact with the local hosting history at `~/.publish-history.json`.
 
 | Command | Description |
 |---------|-------------|
-| `history.sh list` | Show the 10 most recent publishes |
-| `history.sh list --all` | Show all publishes |
+| `history.sh list` | Show the 10 most recent uploads |
+| `history.sh list --all` | Show all uploads |
 | `history.sh search <query>` | Filter entries by key or local path |
 | `history.sh prune` | Remove entries whose R2 objects no longer exist |
 
-When the user asks to see their publish history, list recent uploads, or find a previously published file, use the appropriate history command.
+When the user asks to see their hosting history, list recent uploads, or find a previously hosted file, use the appropriate history command.
 
 ## Custom domains
 
