@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.7.0",
+    "date": "2026-05-22",
+    "changes": {
+      "features": [
+        "Added review-pr skill for forensic, timeline-first pull request review with confidence-tagged findings"
+      ]
+    }
+  },
+  {
     "version": "0.6.0",
     "date": "2026-05-16",
     "pr": {
