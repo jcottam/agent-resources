@@ -4,5 +4,5 @@
   "version": "1.0.0",
   "author": { "name": "jcottam" },
   "license": "MIT",
-  "skills": ["./skills/engineering/ship", "./skills/thinking/advisor", "./skills/publishing/host"]
+  "skills": ["./skills/engineering/ship", "./skills/engineering/review-pr", "./skills/thinking/advisor", "./skills/publishing/host"]
 }

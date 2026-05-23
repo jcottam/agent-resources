@@ -36,6 +36,7 @@ npx skills update
 | Skill | Description |
 |-------|-------------|
 | [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
+| [review-pr](./skills/engineering/review-pr/SKILL.md) | Forensic, timeline-first PR review that reconstructs commit narrative before forming opinions, with rigorous evaluation and confidence-tagged findings. |
 
 ### Publishing
 
