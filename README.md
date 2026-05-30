@@ -31,6 +31,12 @@ npx skills update
 
 ## Skills
 
+### Design
+
+| Skill | Description |
+|-------|-------------|
+| [content-wireframe](./skills/design/content-wireframe/SKILL.md) | Draft a content wireframe for a website or page before any design or code. Produces a structured markdown document with real copy, section intent, and open decisions. |
+
 ### Engineering
 
 | Skill | Description |

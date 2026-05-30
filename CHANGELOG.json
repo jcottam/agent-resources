@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.8.0",
+    "date": "2026-05-29",
+    "changes": {
+      "features": [
+        "Added content-wireframe skill for drafting structured page copy before design or code"
+      ]
+    }
+  },
+  {
     "version": "0.7.0",
     "date": "2026-05-22",
     "changes": {
