@@ -20,7 +20,7 @@ Battle-tested agent skills and Cursor rules from real projects. Works with Curso
 
 | Platform | Command |
 |----------|---------|
-| Cursor / npx | `npx skills@latest add jcottam/agent-resources/ship` |
+| Cursor / npx | `npx skills@latest add jcottam/agent-resources/skills/engineering/ship` |
 | Manual (any agent) | Copy `SKILL.md` into `~/.cursor/skills/<skill-name>/` |
 
 ### Update installed skills
