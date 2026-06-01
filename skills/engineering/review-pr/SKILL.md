@@ -11,7 +11,7 @@ description: >-
 license: MIT
 metadata:
   author: jcottam
-  version: "3.0.0"
+  version: "4.0.0"
 ---
 
 # Review PR
@@ -20,11 +20,14 @@ Forensic, stage-aware pull request review. Reconstructs the commit narrative,
 tests the PR's architectural premises against project reality, and produces a
 review comment the user can post directly.
 
-Two core insights:
+Three core insights:
 1. Most bad reviews happen because the reviewer looks at the final diff in
    isolation and misses the *why*.
 2. Most over-engineered PRs happen because the contributor builds for imagined
    future requirements instead of the current problem.
+3. Most shallow reviews happen because the reviewer catalogs file-level
+   findings without first understanding what the change means for the product.
+   Think about the product impact before diving into the code.
 
 ## Phase 1 — Orientation
 
@@ -155,10 +158,76 @@ that looks over-engineered may match patterns already established in the file.
 For large files (>500 lines), read at minimum the 50 lines surrounding each
 change hunk plus the file's imports/exports.
 
-## Phase 5 — Evaluate Proportionality
+## Phase 5 — Strategic Assessment
 
-This is where most reviewers stop at "is the code correct?" and miss "is the
-code necessary?"
+**Stop. Before evaluating any individual file or concern, think about the PR
+as a product decision.** Most review failures happen here — the reviewer dives
+into file-level findings without first understanding what the change means for
+the product, its users, and its architecture. A review that catalogs twenty
+code issues but misses the one architectural tradeoff is a failed review.
+
+### 5.1 Name the core value
+
+State in one sentence what this PR actually improves for the product. Not what
+the code does — what the *product* gains. This becomes the opening line of
+your review. If you can't name the value, the PR may lack a clear purpose.
+
+### 5.2 Identify the 2–3 decisions that matter most
+
+Every PR of substance makes decisions — about API surface, data flow,
+abstractions, constraints. Most are fine. A few are consequential. Find the
+consequential ones:
+
+- **What new constraints does this introduce?** If an input changes from a
+  string to a structured object, who can no longer call this? If a workflow
+  step is removed, what output disappears?
+- **What new infrastructure does this add, and what's the actual usage
+  pattern?** Not theoretical usage — actual current usage. One lookup per
+  user journey? Thousands of concurrent requests? The answer determines
+  whether caching, rate limiting, and auth tiers are justified or premature.
+- **Does the deployment model support the abstraction?** Microservice
+  patterns in a monolith? Versioned APIs when both sides deploy atomically?
+  Schema versioning when there's one consumer?
+
+For each decision, ground your evaluation in the project's reality: its deploy
+model, its current traffic, its team size, its stage, its existing infra.
+Generic best practices are not arguments — "rate limiting is a best practice"
+is not a reason to add six rate limiters to an internal API with one caller.
+
+### 5.3 Check for product-level tradeoffs
+
+Some changes have consequences beyond the code:
+- Does a new input requirement block callers that worked before?
+- Does removing a feature (even via merge gap) break a user-facing output?
+- Does the change create a new operational burden (env vars, infrastructure,
+  deployment steps)?
+- Are there follow-up tickets implied but not tracked?
+
+If a tradeoff exists, the review should surface it as a question, not an
+accusation: "Is it acceptable that X can no longer do Y? If so, let's
+document it."
+
+### 5.4 Group concerns into themes
+
+Do **not** produce a flat list of file-level findings. Group related issues
+into 2–4 coherent themes, each grounded in the product reality from 5.2. A
+theme is a complete argument: what the PR does, why it doesn't fit, what to
+do instead.
+
+Bad theme: "`lib/ratelimit.ts` — six rate limiters is too many."
+Good theme: "Strip the rate limiting. Our usage pattern is one lookup per
+user journey — there's nothing to rate-limit at current volume. Google's
+own quota limits are our rate limiter. Ship without it and revisit when
+usage data calls for it."
+
+The difference: the good version names the actual usage pattern, explains why
+the infrastructure doesn't fit, and gives a clear action.
+
+## Phase 6 — Detailed Evaluation
+
+With the strategic assessment formed, now evaluate the details. The strategic
+themes from Phase 5 are your guide — details should support or refine those
+themes, not replace them.
 
 ### Over-engineering detection
 
@@ -184,10 +253,6 @@ Common over-engineering patterns:
 - **Abstract interfaces** with a single implementation
 - **"Kept for future callers"** exports that nobody calls
 
-When flagging over-engineering, always steelman first: state the strongest case
-for the infrastructure, then explain why the current reality doesn't justify
-it.
-
 ### Stage-aware evaluation
 
 | Project stage | Bias toward | Accept | Push back on |
@@ -199,18 +264,6 @@ it.
 Read `AGENTS.md` and the repo structure to assess stage. If unclear, ask the
 user.
 
-### Architecture challenge
-
-Test the PR's architectural premises:
-- Does the deployment model support the abstraction? (Microservice patterns in
-  a monolith? Versioned APIs with atomic deploys?)
-- Does the PR introduce infrastructure that duplicates what the stack already
-  provides?
-- Does a new constraint (e.g., requiring a pre-resolved object instead of a
-  string) have downstream consequences for other callers?
-- If the PR changes a workflow or pipeline, what breaks for existing
-  consumers?
-
 ### Standard evaluation
 
 Also evaluate:
@@ -220,14 +273,16 @@ Also evaluate:
 - **Scope creep** — Entangled with primary changes or cleanly separable?
 - **Project conventions** — Does it follow AGENTS.md boundaries? Are shared
   files (AGENTS.md, workflow-steps, etc.) updated when required?
+- **Dead code** — Unused imports, "kept for future callers" functions,
+  unreachable branches.
 
-Tag substantive concerns with confidence levels: `[high confidence]`,
-`[moderate confidence]`, `[low confidence]`.
+Fold detail findings into the strategic themes from Phase 5. If a detail
+doesn't fit any theme, it goes into housekeeping.
 
 ### Fast path — clean PRs
 
-If after Phases 1–5 no substantive concerns emerge (correct implementation,
-proportional scope, follows conventions, has tests), skip to Phase 7 with a
+If after Phases 1–6 no substantive concerns emerge (correct implementation,
+proportional scope, follows conventions, has tests), skip to Phase 8 with a
 short approval. Do not manufacture findings to justify the review's existence.
 A clean PR gets:
 
@@ -235,7 +290,7 @@ A clean PR gets:
 - Verdict: **Approve**
 - No comment to post (or a one-line "LGTM — [what you verified]")
 
-## Phase 6 — Collaborative Refinement
+## Phase 7 — Collaborative Refinement
 
 Present findings to the user, then **expect corrections**. The reviewer often
 lacks context the user has:
@@ -252,32 +307,65 @@ the finding — don't hedge or footnote it.
 This is iterative. The first pass surfaces raw findings; dialogue refines them
 into the actual review.
 
-## Phase 7 — Produce the PR Comment
+## Phase 8 — Produce the PR Comment
 
 After collaborative refinement, produce a comment the user can post directly.
 
 ### Format
 
-Each concern is one block: location, problem, fix. No preamble.
+The review is a short essay, not a checklist. Structure it as themed
+paragraphs, each making a complete argument.
+
+**Opening paragraph:** Name what the PR gets right and *why* it's valuable.
+This is not flattery — it tells the contributor you understand the intent and
+frames the subsequent asks as refinements, not rejections.
+
+**Themed paragraphs (2–4):** Each paragraph is one coherent concern. Open with
+a clear directive ("Strip the rate limiting.", "Drop the versioning."), then
+explain *why* grounded in the project's actual reality (deploy model, usage
+pattern, existing infra), then state what to do instead. Don't split a single
+theme across multiple numbered items.
+
+**Tradeoff questions (if any):** When the PR introduces a constraint that may
+or may not be acceptable, frame it as a question: "The workflow now requires X.
+Is that an acceptable tradeoff? If so, let's document it. If not, we need a
+fallback."
+
+**Housekeeping:** A short bullet list for minor items (dead imports, missing
+doc updates, convention violations) that don't merit their own paragraph.
+
+**What should land:** One paragraph specifying the subset to merge now and
+what to split into follow-up tickets.
+
+Example structure:
 
 ```
-**1. [File or area]** — [Problem in one sentence]. [What to do about it.]
+Overall: [What the PR gets right and why it matters.]
 
-**2. [File or area]** — [Problem]. [Fix.]
+[Theme 1 directive.] [Why, grounded in project reality.] [What to do.]
 
-**Housekeeping:**
+[Theme 2 directive.] [Why.] [What to do.]
+
+[Tradeoff question, if any.]
+
+Housekeeping:
 - [Item]
 - [Item]
 
-**What should land:** [Subset to merge now. What to split out.]
+What I'd like to land: [Specific subset. What to defer.]
 ```
 
 ### Tone
 
-- No openers. No "overall" paragraph. No "great work" buffer.
-- Lead with the strongest concern.
-- Critique the diff, not the contributor.
+- Open with genuine recognition of value — but be specific about *what* is
+  valuable, not generic praise.
+- Critique the decisions, not the person.
+- Ground every ask in the project's actual reality, not generic best practices.
+  "We don't need this" is weak. "We don't need this because our usage pattern
+  is X and our deploy model is Y" is strong.
 - If asking the contributor to reconsider a tradeoff, frame as a question.
+- Be direct about what to cut. "Strip X" is clearer than "Consider whether X
+  is needed."
 
 ### Verdict (internal, not in the posted comment)
 
