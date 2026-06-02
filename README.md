@@ -41,6 +41,7 @@ npx skills update
 
 | Skill | Description |
 |-------|-------------|
+| [orient](./skills/engineering/orient/SKILL.md) | Orient a developer to an unfamiliar codebase by systematically exploring its structure, purpose, features, conventions, and workflows. |
 | [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
 | [review-pr](./skills/engineering/review-pr/SKILL.md) | Forensic, timeline-first PR review that reconstructs commit narrative before forming opinions, with rigorous evaluation and confidence-tagged findings. |
 
