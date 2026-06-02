@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.10.0",
+    "date": "2026-06-02",
+    "changes": {
+      "features": [
+        "Added sounding-board skill — an opinionated rubber duck that reflects ideas back, flags gaps, and offers concrete suggestions one exchange at a time"
+      ]
+    }
+  },
+  {
     "version": "0.9.0",
     "date": "2026-06-02",
     "changes": {
