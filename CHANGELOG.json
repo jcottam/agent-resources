@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.9.0",
+    "date": "2026-06-02",
+    "changes": {
+      "features": [
+        "Added orient skill for systematically exploring and documenting unfamiliar codebases"
+      ]
+    }
+  },
+  {
     "version": "0.8.0",
     "date": "2026-05-29",
     "changes": {
