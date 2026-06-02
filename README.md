@@ -56,6 +56,7 @@ npx skills update
 | Skill | Description |
 |-------|-------------|
 | [advisor](./skills/thinking/advisor/SKILL.md) | Rigorous, no-nonsense advisory mode. Eliminates sycophancy, enforces intellectual honesty, and produces thorough analysis with explicit confidence levels. |
+| [sounding-board](./skills/thinking/sounding-board/SKILL.md) | Opinionated rubber duck that reflects your thinking back, flags gaps, and offers suggestions one exchange at a time. |
 
 ---
 
