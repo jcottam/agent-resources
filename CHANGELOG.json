@@ -1,5 +1,22 @@
 [
   {
+    "version": "0.11.0",
+    "date": "2026-06-02",
+    "changes": {
+      "features": [
+        "Added handoff skill to compact session context into ~/.agents/handoffs/ for continuation across agent turns"
+      ],
+      "improvements": [
+        "Handoff supports artifact deduplication, next-session focus via argument-hint, suggested skills on resume, and PII redaction"
+      ]
+    },
+    "pr": {
+      "number": 13,
+      "title": "feat: add handoff skill for session context compaction",
+      "url": "https://github.com/jcottam/agent-resources/pull/13"
+    }
+  },
+  {
     "version": "0.10.0",
     "date": "2026-06-02",
     "changes": {

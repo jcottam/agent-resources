@@ -51,6 +51,12 @@ npx skills update
 |-------|-------------|
 | [host](./skills/publishing/host/SKILL.md) | Upload files to Cloudflare R2 and return a shareable public URL with slug naming, clipboard copy, and hosting history. |
 
+### Productivity
+
+| Skill | Description |
+|-------|-------------|
+| [handoff](./skills/productivity/handoff/SKILL.md) | Compact session context into `~/.agents/handoffs/` with deduped artifact references, next-session focus, and suggested skills for resume. |
+
 ### Thinking
 
 | Skill | Description |

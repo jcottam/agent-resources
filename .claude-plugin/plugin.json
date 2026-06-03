@@ -4,5 +4,5 @@
   "version": "1.0.0",
   "author": { "name": "jcottam" },
   "license": "MIT",
-  "skills": ["./skills/design/content-wireframe", "./skills/engineering/orient", "./skills/engineering/ship", "./skills/engineering/review-pr", "./skills/thinking/advisor", "./skills/thinking/sounding-board", "./skills/publishing/host"]
+  "skills": ["./skills/design/content-wireframe", "./skills/engineering/orient", "./skills/engineering/ship", "./skills/engineering/review-pr", "./skills/productivity/handoff", "./skills/thinking/advisor", "./skills/thinking/sounding-board", "./skills/publishing/host"]
 }
