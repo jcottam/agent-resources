@@ -1,5 +1,19 @@
 [
   {
+    "version": "0.11.1",
+    "date": "2026-06-12",
+    "changes": {
+      "improvements": [
+        "Handoff v1.2 adds compaction fidelity warnings, TL;DR, condensed session activity, search tags, quantifiable artifacts, and bash-backed timestamps"
+      ]
+    },
+    "pr": {
+      "number": 14,
+      "title": "improve: handoff v1.2 with fidelity, TL;DR, and session activity",
+      "url": "https://github.com/jcottam/agent-resources/pull/14"
+    }
+  },
+  {
     "version": "0.11.0",
     "date": "2026-06-02",
     "changes": {
