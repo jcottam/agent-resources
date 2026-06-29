@@ -2,25 +2,28 @@
 name: ship
 description: >-
   Validate a branch, run quality gates, update documentation and changelog, and
-  open a pull request. Designed for JavaScript/TypeScript projects; quality gate
-  detection requires package.json. Use when the user says "ship", "ship this",
-  "open a PR", "prepare a PR", "send this for review", "let's ship it", or any
-  variation of wanting to finalize work and create a pull request.
+  open a pull request. Supports GitHub (primary) and Azure DevOps (secondary).
+  Designed for JavaScript/TypeScript projects; quality gate detection requires
+  package.json. Use when the user says "ship", "ship this", "open a PR",
+  "prepare a PR", "send this for review", "let's ship it", or any variation of
+  wanting to finalize work and create a pull request.
 license: MIT
 metadata:
   author: jcottam
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Ship
 
 Pre-flight checklist that validates the branch, runs quality gates, updates documentation and changelog, and opens a pull request.
 
+**GitHub is the primary host; Azure DevOps is secondary.** The scripts detect the provider from the git remote (`github.com` vs `dev.azure.com`). When the remote is ambiguous, they try GitHub first, then Azure DevOps.
+
 ## Workflow overview
 
 ```
-- [ ] Step 0: Verify CLI tools and Azure DevOps auth
-- [ ] Step 1: Preflight (rebase, branch, existing PR)
+- [ ] Step 0: Verify CLI tools and host auth (GitHub or Azure DevOps)
+- [ ] Step 1: Preflight (rebase, branch, existing PR, provider)
 - [ ] Step 2: Quality gates (lint → typecheck → test → build)
 - [ ] Step 3: Documentation (README.md, AGENTS.md)
 - [ ] Step 4: Changelog bump
@@ -37,7 +40,7 @@ Pre-flight checklist that validates the branch, runs quality gates, updates docu
 
 ## Running helper scripts (cross-platform)
 
-The helper scripts (`preflight.sh`, `detect-gates.sh`, `changelog-bump.sh`, `backfill-pr.sh`) are bash and require `bash`, `jq`, `node`, `git`, and `az` on PATH. PR lookup uses `az repos pr list` with `--detect true` (organization, project, and repository are inferred from the git remote).
+The helper scripts (`preflight.sh`, `detect-gates.sh`, `changelog-bump.sh`, `backfill-pr.sh`) are bash and require `bash`, `jq`, `node`, and `git` on PATH. PR operations also need `gh` (GitHub) and/or `az` (Azure DevOps), depending on the repo remote.
 
 - **macOS / Linux**: run directly — e.g. `bash "$SCRIPTS/preflight.sh"`.
 - **Windows (PowerShell)**: use **Git Bash**, not WSL `bash.exe` (which cannot see Windows-installed tools). Discover Git Bash from the git install, then invoke each script through it:
@@ -56,30 +59,52 @@ Throughout the steps below, every `$SCRIPTS/<name>.sh` reference means run that 
 
 Verify that all required CLI tools are installed and authenticated before proceeding.
 
-**Check tool availability:**
+**Always required:**
 
-- **macOS / Linux (bash/zsh)**: `command -v git && command -v az && command -v jq && command -v node` — the `&&` chain fails on the first missing tool.
-- **Windows (PowerShell)**: `'git','az','jq','node' | ForEach-Object { if (-not (Get-Command $_ -ErrorAction SilentlyContinue)) { "MISSING: $_" } }` — prints a line per missing tool (no output means all present).
+| Tool | Purpose |
+| --- | --- |
+| `git` | Branch ops, commits, push |
+| `jq` | JSON parsing in shell scripts |
+| `node` | Inline JS for changelog and gates |
 
-If any tool is missing, stop and tell the user which tool(s) need to be installed.
+**Check core tools:**
 
-| Tool | Purpose | Install hint |
+- **macOS / Linux (bash/zsh)**: `command -v git && command -v jq && command -v node`
+- **Windows (PowerShell)**: `'git','jq','node' | ForEach-Object { if (-not (Get-Command $_ -ErrorAction SilentlyContinue)) { "MISSING: $_" } }`
+
+If any core tool is missing, stop and tell the user which tool(s) need to be installed.
+
+**Host-specific tools** — check only the provider that matches the repo (see [Provider detection](#provider-detection)):
+
+| Provider | Tool | Install hint |
 | --- | --- | --- |
-| `git` | Branch ops, commits, push | [git-scm.com/downloads](https://git-scm.com/downloads) (Windows build bundles Git Bash) |
-| `az` | Azure DevOps PR create/list/update | macOS: `brew install azure-cli` · Windows: `winget install Microsoft.AzureCLI` · [aka.ms/azcli](https://aka.ms/azcli) |
-| `jq` | JSON parsing in shell scripts | macOS: `brew install jq` · Windows: `winget install jqlang.jq` · [jqlang.github.io/jq](https://jqlang.github.io/jq) |
-| `node` | Inline JS for changelog and gates | [nodejs.org](https://nodejs.org) · Windows: `winget install OpenJS.NodeJS` |
+| GitHub | `gh` | macOS: `brew install gh` · [cli.github.com](https://cli.github.com) |
+| Azure DevOps | `az` | macOS: `brew install azure-cli` · [aka.ms/azcli](https://aka.ms/azcli) |
 
-This skill uses **Azure DevOps** (`az repos`) for pull requests, not GitHub (`gh`). The `az repos` commands auto-detect organization, project, and repository from the git remote.
+**Confirm auth for the detected provider:**
 
-**Confirm Azure CLI auth:**
+- **GitHub**: `gh auth status` — if no active account, instruct the user to run `gh auth login`.
+- **Azure DevOps**: `az account show` (run `az login` if it errors) and `az extension show --name azure-devops` (run `az extension add --name azure-devops` if missing).
 
-1. `az account show` — if this errors, stop and instruct the user to run `az login`.
-2. `az extension show --name azure-devops` — if missing, instruct them to run `az extension add --name azure-devops`.
+If the remote is ambiguous and both hosts are plausible, verify auth for whichever provider you will use in Step 5. Prefer GitHub when both are available.
+
+## Provider detection
+
+The preflight script sets a top-level `provider` field (`"github"` or `"azure"`) by inspecting `git remote get-url origin`:
+
+| Remote pattern | Provider |
+| --- | --- |
+| `github.com`, `git@github:` | GitHub |
+| `dev.azure.com`, `visualstudio.com`, `ssh.dev.azure.com` | Azure DevOps |
+| Other / unknown | Try GitHub first, then Azure DevOps |
+
+Use the `provider` field (and `pr.provider` when a PR exists) in Step 5 to pick the correct create/update commands.
+
+The `pr` object is normalized across hosts: `provider`, `id`, `number`, `title`, `url`. For GitHub, `id` and `number` are the same PR number. For Azure DevOps, both are the pull request ID.
 
 ## Step 1 — Preflight
 
-Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default branch, rebases, checks for uncommitted changes, counts commits ahead, and detects an existing PR — all in one call.
+Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default branch, rebases, checks for uncommitted changes, counts commits ahead, detects the provider, and checks for an existing PR — all in one call.
 
 - If `uncommittedChanges` is `true`, stop and ask the user to commit or stash.
 - If `onDefaultBranch` is `true`, create a new branch:
@@ -88,7 +113,7 @@ Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default 
   - Generate a short, descriptive slug from the changes (e.g. `feature/add-team-cadence-grid`).
   - Run `git checkout -b <prefix>/<slug>`.
 - If `rebaseStatus` is `"conflicts"`, stop and report the conflicting files from `conflictFiles`. Do not attempt to resolve merge conflicts automatically.
-- If `rebaseStatus` is `"clean"`, proceed.
+- If `rebaseStatus` is `"clean"` or `"skipped"`, proceed.
 - If `commitsAhead` is `0`, stop — there is nothing to ship.
 
 **Branch prefixes:**
@@ -207,14 +232,39 @@ The redirect suppresses the "pathspec did not match" warning when only one chang
 
 ## Step 5 — Open the PR
 
-Use the `prExists` and `pr` fields from the Step 1 preflight output to decide whether to create or update. The `pr` object has `id` (Azure DevOps pull request ID), `title`, and `url` fields.
+Use the `provider`, `prExists`, and `pr` fields from the Step 1 preflight output.
 
 1. `git push -u origin HEAD`.
-2. Create or update the PR:
-   - **New PR**: `az repos pr create` with a title and description derived from the commit log.
-   - **Existing PR**: `az repos pr update --id <pr.id>` to update the title and description if the changelog or commits have changed.
-   - **Title**: a concise summary of the branch's changes.
-   - **Description**: a `## Summary` section with 1–3 bullet points, and a `## Test plan` section with a verification checklist. The `--description` flag accepts multiple arguments — each becomes a separate line. Pass the markdown body as a sequence of quoted line strings:
+2. Create or update the PR using the detected provider:
+
+### GitHub (`provider: "github"`)
+
+- **New PR**: `gh pr create` with a title and body derived from the commit log.
+- **Existing PR**: `gh pr edit <pr.number>` (or `gh pr edit` on the current branch) to update the title and body.
+- **Body**: a `## Summary` section with 1–3 bullet points, and a `## Test plan` section with a verification checklist.
+
+```bash
+gh pr create \
+  --title "Add team cadence heatmap grid" \
+  --body "$(cat <<'EOF'
+## Summary
+
+- Added heatmap grid to the dashboard
+- Updated README with setup notes
+
+## Test plan
+
+- [ ] Verify grid renders with sample data
+- [ ] Confirm mobile layout
+EOF
+)"
+```
+
+### Azure DevOps (`provider: "azure"`)
+
+- **New PR**: `az repos pr create` with a title and description derived from the commit log.
+- **Existing PR**: `az repos pr update --id <pr.id>` to update the title and description.
+- **Description**: same sections as GitHub. The `--description` flag accepts multiple arguments — each becomes a separate line:
 
 ```bash
 az repos pr create \
@@ -230,13 +280,14 @@ az repos pr create \
   --description "- [ ] Confirm mobile layout"
 ```
 
-> **Optional:** Run `$SCRIPTS/backfill-pr.sh` after creating the PR to add a PR link to the changelog entry. This is not run by default — use it if your team wants PR traceability in the changelog.
+> **Optional:** Run `$SCRIPTS/backfill-pr.sh` after creating the PR to add a PR link to the changelog entry. This is not run by default — use it if your team wants PR traceability in the changelog. The script uses the same provider detection as preflight.
 
 ## Step 6 — Post-flight report
 
 Print a short summary:
 
 - Branch name (and whether it was auto-created)
+- Provider (GitHub or Azure DevOps)
 - PR URL (and whether it was created or updated)
 - Quality gates: which ran and their result (pass / skipped / fixed)
 - Changelog version bump (e.g. `0.1.0 → 0.2.0`)
