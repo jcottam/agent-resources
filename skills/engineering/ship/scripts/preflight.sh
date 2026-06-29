@@ -9,6 +9,10 @@ set -euo pipefail
 #   preflight.sh              # health check + fetch + rebase (default)
 #   preflight.sh --no-rebase  # health check + fetch only, skip rebase
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/azure-pr.sh
+source "$SCRIPT_DIR/lib/azure-pr.sh"
+
 REBASE=true
 for arg in "$@"; do
   case "$arg" in
@@ -73,19 +77,22 @@ if [[ "$COMMITS_AHEAD" -gt 0 ]]; then
   COMMIT_LOG=$(git log "origin/$DEFAULT_BRANCH..HEAD" --oneline)
 fi
 
-# --- existing PR --------------------------------------------------------------
+# --- existing PR (Azure DevOps) -----------------------------------------------
 
-PR_JSON=$(gh pr view --json url,number,title 2>/dev/null || echo "")
-if [[ -n "$PR_JSON" ]]; then
-  PR_EXISTS=true
-else
+PR_JSON=$(fetch_pr_json_for_branch "$CURRENT_BRANCH")
+if [[ "$PR_JSON" == "null" ]]; then
   PR_EXISTS=false
-  PR_JSON="null"
+else
+  PR_EXISTS=true
 fi
 
 # --- output -------------------------------------------------------------------
 
-COMMIT_LOG_JSON=$(echo "$COMMIT_LOG" | jq -R -s '.')
+if [[ -z "$COMMIT_LOG" ]]; then
+  COMMIT_LOG_JSON='""'
+else
+  COMMIT_LOG_JSON=$(echo "$COMMIT_LOG" | jq -R -s '.')
+fi
 
 cat <<ENDJSON
 {

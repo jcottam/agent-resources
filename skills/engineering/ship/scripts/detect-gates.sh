@@ -8,10 +8,11 @@ set -euo pipefail
 #   project-root defaults to the current working directory.
 
 ROOT="${1:-.}"
+PKG_JSON="$ROOT/package.json"
 
 # --- check for package.json --------------------------------------------------
 
-if [[ ! -f "$ROOT/package.json" ]]; then
+if [[ ! -f "$PKG_JSON" ]]; then
   jq -n '{ pm: null, gates: [], noPackageJson: true }'
   exit 0
 fi
@@ -33,14 +34,35 @@ PM=$(detect_pm)
 has_script() {
   local name="$1"
   node -e "
-    const pkg = require('$ROOT/package.json');
+    const pkg = require(process.argv[1]);
     process.exit(pkg.scripts && pkg.scripts['$name'] ? 0 : 1);
-  " 2>/dev/null
+  " "$PKG_JSON" 2>/dev/null
 }
 
 has_file() {
   local pattern="$1"
   compgen -G "$ROOT/$pattern" > /dev/null 2>&1
+}
+
+pm_run() {
+  local script="$1"
+  if [[ "$PM" == "npm" ]]; then
+    echo "npm run $script"
+  else
+    echo "$PM $script"
+  fi
+}
+
+pm_test() {
+  if [[ "$PM" == "npm" ]]; then
+    echo "npm test"
+  else
+    echo "$PM test"
+  fi
+}
+
+pm_exec() {
+  echo "$PM exec $*"
 }
 
 # --- gate detection -----------------------------------------------------------
@@ -54,36 +76,36 @@ add_gate() {
 
 # Lint
 if has_script lint; then
-  add_gate lint "$PM lint"
+  add_gate lint "$(pm_run lint)"
 elif has_file ".eslintrc*" || has_file "eslint.config.*" || has_file "biome.json" || has_file "biome.jsonc" || has_file ".oxlintrc*"; then
   if has_file ".eslintrc*" || has_file "eslint.config.*"; then
-    add_gate lint "$PM exec eslint ."
+    add_gate lint "$(pm_exec eslint .)"
   elif has_file "biome.json" || has_file "biome.jsonc"; then
-    add_gate lint "$PM exec biome check ."
+    add_gate lint "$(pm_exec biome check .)"
   elif has_file ".oxlintrc*"; then
-    add_gate lint "$PM exec oxlint ."
+    add_gate lint "$(pm_exec oxlint .)"
   fi
 fi
 
 # Type check
 if has_script typecheck; then
-  add_gate typecheck "$PM run typecheck"
+  add_gate typecheck "$(pm_run typecheck)"
 elif has_script check-types; then
-  add_gate typecheck "$PM run check-types"
+  add_gate typecheck "$(pm_run check-types)"
 elif has_script type-check; then
-  add_gate typecheck "$PM run type-check"
+  add_gate typecheck "$(pm_run type-check)"
 elif [[ -f "$ROOT/tsconfig.json" ]]; then
-  add_gate typecheck "$PM exec tsc --noEmit"
+  add_gate typecheck "$(pm_exec tsc --noEmit)"
 fi
 
 # Tests
 if has_script test; then
-  add_gate test "$PM test"
+  add_gate test "$(pm_test)"
 fi
 
 # Build
 if has_script build; then
-  add_gate build "$PM build"
+  add_gate build "$(pm_run build)"
 fi
 
 # --- output -------------------------------------------------------------------
