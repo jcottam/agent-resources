@@ -10,8 +10,8 @@ set -euo pipefail
 #   preflight.sh --no-rebase  # health check + fetch only, skip rebase
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/azure-pr.sh
-source "$SCRIPT_DIR/lib/azure-pr.sh"
+# shellcheck source=lib/pr.sh
+source "$SCRIPT_DIR/lib/pr.sh"
 
 REBASE=true
 for arg in "$@"; do
@@ -41,6 +41,7 @@ resolve_default_branch() {
 DEFAULT_BRANCH=$(resolve_default_branch)
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 ON_DEFAULT=$( [[ "$CURRENT_BRANCH" == "$DEFAULT_BRANCH" ]] && echo true || echo false )
+PROVIDER=$(resolve_pr_provider_for_repo "$CURRENT_BRANCH")
 
 # --- uncommitted changes ------------------------------------------------------
 
@@ -77,13 +78,17 @@ if [[ "$COMMITS_AHEAD" -gt 0 ]]; then
   COMMIT_LOG=$(git log "origin/$DEFAULT_BRANCH..HEAD" --oneline)
 fi
 
-# --- existing PR (Azure DevOps) -----------------------------------------------
+# --- existing PR --------------------------------------------------------------
 
 PR_JSON=$(fetch_pr_json_for_branch "$CURRENT_BRANCH")
 if [[ "$PR_JSON" == "null" ]]; then
   PR_EXISTS=false
 else
   PR_EXISTS=true
+  PR_PROVIDER=$(echo "$PR_JSON" | jq -r '.provider')
+  if [[ -n "$PR_PROVIDER" && "$PR_PROVIDER" != "null" ]]; then
+    PROVIDER="$PR_PROVIDER"
+  fi
 fi
 
 # --- output -------------------------------------------------------------------
@@ -102,6 +107,7 @@ cat <<ENDJSON
   "uncommittedChanges": $HAS_UNCOMMITTED,
   "commitsAhead": $COMMITS_AHEAD,
   "commitLog": $COMMIT_LOG_JSON,
+  "provider": "$PROVIDER",
   "prExists": $PR_EXISTS,
   "pr": $PR_JSON,
   "rebaseStatus": "$REBASE_STATUS",
