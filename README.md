@@ -55,6 +55,7 @@ npx skills update
 
 | Skill | Description |
 |-------|-------------|
+| [commit-release-notes](./skills/productivity/commit-release-notes/SKILL.md) | Summarize recent git commits into plain-language release notes for non-technical readers at a chosen reading level. |
 | [handoff](./skills/productivity/handoff/SKILL.md) | Compact session context into `~/.agents/handoffs/` with deduped artifact references, next-session focus, and suggested skills for resume. |
 
 ### Thinking
