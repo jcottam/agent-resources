@@ -44,6 +44,8 @@ npx skills update
 | [orient](./skills/engineering/orient/SKILL.md) | Orient a developer to an unfamiliar codebase by systematically exploring its structure, purpose, features, conventions, and workflows. |
 | [ship](./skills/engineering/ship/SKILL.md) | Validate a branch, run quality gates, update documentation and changelog, and open a pull request. |
 | [review-pr](./skills/engineering/review-pr/SKILL.md) | Forensic, timeline-first PR review that reconstructs commit narrative before forming opinions, with rigorous evaluation and confidence-tagged findings. |
+| [squash-branch](./skills/engineering/squash-branch/SKILL.md) | Group related commits into a clean history while proving the final code is unchanged. |
+| [promote-skill](./skills/engineering/promote-skill/SKILL.md) | Move a tested personal skill into a shared repository with overlap checks, normalized metadata, catalog updates, and validation. |
 
 ### Publishing
 

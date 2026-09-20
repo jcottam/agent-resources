@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.1.0",
+    "date": "2026-09-20",
+    "changes": {
+      "features": [
+        "Added squash-branch skill for safely grouping noisy Git history without changing the final code",
+        "Added promote-skill workflow for moving tested personal skills into shared repositories"
+      ],
+      "fixes": [
+        "Aligned the plugin manifest and changelog release versions"
+      ]
+    }
+  },
+  {
     "version": "0.13.0",
     "date": "2026-06-29",
     "changes": {
