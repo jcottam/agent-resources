@@ -78,7 +78,10 @@ Other skills and tools worth checking out.
 | Resource | Description |
 |----------|-------------|
 | [skills.sh](https://skills.sh) | Registry and CLI for discovering, installing, and managing agent skills. |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | Engineering and productivity skills for real development -- TDD, diagnosis, grilling, and more. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | Engineering and productivity skills for real development -- TDD, diagnosis, and more. |
+| [Grill Me](https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md) | Matt Pocock's interviewing skill that stress-tests a plan or design until every decision branch is resolved. |
+| [Wayfinder](https://github.com/mattpocock/skills/blob/main/skills/engineering/wayfinder/SKILL.md) | Matt Pocock's skill for charting work too big for one session as a shared map of decision tickets until the path is clear. |
+| [I Have ADHD](https://github.com/ayghri/i-have-adhd) | ayghri's skill that shapes agent output for ADHD readers -- action first, numbered steps, no buried answers. |
 | [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Behavioral guidelines derived from Karpathy's observations on LLM coding pitfalls. |
 | [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
