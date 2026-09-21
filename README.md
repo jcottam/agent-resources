@@ -84,6 +84,7 @@ Other skills and tools worth checking out.
 | [Grill Me](https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md) | Matt Pocock's interviewing skill that stress-tests a plan or design until every decision branch is resolved. |
 | [Wayfinder](https://github.com/mattpocock/skills/blob/main/skills/engineering/wayfinder/SKILL.md) | Matt Pocock's skill for charting work too big for one session as a shared map of decision tickets until the path is clear. |
 | [I Have ADHD](https://github.com/ayghri/i-have-adhd) | ayghri's skill that shapes agent output for ADHD readers -- action first, numbered steps, no buried answers. |
+| [Brainstorming](https://github.com/obra/superpowers/blob/main/skills/brainstorming/SKILL.md) | Jesse Vincent's skill that turns a rough idea into an approved design through questions, alternatives, and a hard gate before any implementation. |
 | [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Behavioral guidelines derived from Karpathy's observations on LLM coding pitfalls. |
 | [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
