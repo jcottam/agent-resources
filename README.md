@@ -87,6 +87,7 @@ Other skills and tools worth checking out.
 | [Brainstorming](https://github.com/obra/superpowers/blob/main/skills/brainstorming/SKILL.md) | Jesse Vincent's skill that turns a rough idea into an approved design through questions, alternatives, and a hard gate before any implementation. |
 | [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Behavioral guidelines derived from Karpathy's observations on LLM coding pitfalls. |
 | [garrytan/gstack](https://github.com/garrytan/gstack) | 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, and QA. |
+| [Agent QA](https://github.com/vostride/agent-qa) | Agent-facing QA harness with CLI and MCP interfaces for natural-language web and mobile tests, execution memory, and UI-change adaptation. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Design language that makes your AI better at design. |
 | [squirrelscan/squirrelscan](https://github.com/squirrelscan/squirrelscan) | Website auditing tool built for agent and LLM workflows. |
 | [JimLiu/baoyu-skills](https://github.com/JimLiu/baoyu-skills) | Content creation skills -- infographics, image cards, markdown formatting, and HTML conversion. |
