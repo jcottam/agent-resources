@@ -58,7 +58,7 @@ Throughout the steps below, every `$SCRIPTS/<name>.sh` reference means run that 
 
 ## Step 0 — Defer to the repository
 
-If the repository has its own ship skill (`.agents/skills/ship/SKILL.md` or `.cursor/skills/ship/SKILL.md`), follow that skill instead and stop here.
+If the repository has its own ship skill at the repository root (`.agents/skills/ship/SKILL.md` or `.cursor/skills/ship/SKILL.md`), follow that skill instead and stop here.
 If `origin` is not a GitHub remote, do not use `gh`.
 
 ## Step 1 — Prerequisites
