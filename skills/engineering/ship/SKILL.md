@@ -10,25 +10,26 @@ description: >-
 license: MIT
 metadata:
   author: jcottam
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Ship
 
 Pre-flight checklist that validates the branch, runs quality gates, updates documentation and changelog, and opens a pull request.
 
-**GitHub is the primary host; Azure DevOps is secondary.** The scripts detect the provider from the git remote (`github.com` vs `dev.azure.com`). When the remote is ambiguous, they try GitHub first, then Azure DevOps.
+**GitHub is the primary host; Azure DevOps is secondary.** The scripts detect the provider from the git remote (`github.com` vs `dev.azure.com`). If `origin` is not a GitHub remote, do not use `gh` — even when the remote is ambiguous or a script falls back to GitHub.
 
 ## Workflow overview
 
 ```
-- [ ] Step 0: Verify CLI tools and host auth (GitHub or Azure DevOps)
-- [ ] Step 1: Preflight (rebase, branch, existing PR, provider)
-- [ ] Step 2: Quality gates (lint → typecheck → test → build)
-- [ ] Step 3: Documentation (README.md, AGENTS.md)
-- [ ] Step 4: Changelog bump
-- [ ] Step 5: Push and open or update PR
-- [ ] Step 6: Post-flight report
+- [ ] Step 0: Defer to the repository (repo ship skill; skip gh if origin is not GitHub)
+- [ ] Step 1: Verify CLI tools and host auth (GitHub or Azure DevOps)
+- [ ] Step 2: Preflight (rebase, branch, existing PR, provider)
+- [ ] Step 3: Quality gates (lint → typecheck → test → build)
+- [ ] Step 4: Documentation (README.md, AGENTS.md)
+- [ ] Step 5: Changelog bump
+- [ ] Step 6: Push and open or update PR
+- [ ] Step 7: Post-flight report
 ```
 
 ## Script path placeholder
@@ -40,7 +41,7 @@ Pre-flight checklist that validates the branch, runs quality gates, updates docu
 
 ## Running helper scripts (cross-platform)
 
-The helper scripts (`preflight.sh`, `detect-gates.sh`, `changelog-bump.sh`, `backfill-pr.sh`) are bash and require `bash`, `jq`, `node`, and `git` on PATH. PR operations also need `gh` (GitHub) and/or `az` (Azure DevOps), depending on the repo remote.
+The helper scripts (`preflight.sh`, `detect-gates.sh`, `changelog-bump.sh`, `backfill-pr.sh`) are bash and require `bash`, `jq`, `node`, and `git` on PATH. PR operations also need `gh` (GitHub) and/or `az` (Azure DevOps), depending on the repo remote. If `origin` is not a GitHub remote, do not use `gh`.
 
 - **macOS / Linux**: run directly — e.g. `bash "$SCRIPTS/preflight.sh"`.
 - **Windows (PowerShell)**: use **Git Bash**, not WSL `bash.exe` (which cannot see Windows-installed tools). Discover Git Bash from the git install, then invoke each script through it:
@@ -55,7 +56,12 @@ If `bin\bash.exe` does not exist under the git root, stop and tell the user to i
 
 Throughout the steps below, every `$SCRIPTS/<name>.sh` reference means run that script using the OS-appropriate invocation above.
 
-## Step 0 — Prerequisites
+## Step 0 — Defer to the repository
+
+If the repository has its own ship skill (`.agents/skills/ship/SKILL.md` or `.cursor/skills/ship/SKILL.md`), follow that skill instead and stop here.
+If `origin` is not a GitHub remote, do not use `gh`.
+
+## Step 1 — Prerequisites
 
 Verify that all required CLI tools are installed and authenticated before proceeding.
 
@@ -74,7 +80,7 @@ Verify that all required CLI tools are installed and authenticated before procee
 
 If any core tool is missing, stop and tell the user which tool(s) need to be installed.
 
-**Host-specific tools** — check only the provider that matches the repo (see [Provider detection](#provider-detection)):
+**Host-specific tools** — check only the provider that matches the repo (see [Provider detection](#provider-detection)). If `origin` is not a GitHub remote, do not install, auth-check, or invoke `gh`.
 
 | Provider | Tool | Install hint |
 | --- | --- | --- |
@@ -83,10 +89,10 @@ If any core tool is missing, stop and tell the user which tool(s) need to be ins
 
 **Confirm auth for the detected provider:**
 
-- **GitHub**: `gh auth status` — if no active account, instruct the user to run `gh auth login`.
+- **GitHub**: `gh auth status` — if no active account, instruct the user to run `gh auth login`. Skip this when `origin` is not a GitHub remote.
 - **Azure DevOps**: `az account show` (run `az login` if it errors) and `az extension show --name azure-devops` (run `az extension add --name azure-devops` if missing).
 
-If the remote is ambiguous and both hosts are plausible, verify auth for whichever provider you will use in Step 5. Prefer GitHub when both are available.
+If the remote is ambiguous and both hosts are plausible, verify auth for whichever provider you will use in Step 6. Prefer GitHub when both are available **and** `origin` is a GitHub remote. If `origin` is not a GitHub remote, do not use `gh`.
 
 ## Provider detection
 
@@ -96,13 +102,13 @@ The preflight script sets a top-level `provider` field (`"github"` or `"azure"`)
 | --- | --- |
 | `github.com`, `git@github:` | GitHub |
 | `dev.azure.com`, `visualstudio.com`, `ssh.dev.azure.com` | Azure DevOps |
-| Other / unknown | Try GitHub first, then Azure DevOps |
+| Other / unknown | Do not use `gh`. Try Azure DevOps if plausible; otherwise stop — unsupported host |
 
-Use the `provider` field (and `pr.provider` when a PR exists) in Step 5 to pick the correct create/update commands.
+Use the `provider` field (and `pr.provider` when a PR exists) in Step 6 to pick the correct create/update commands. If `origin` is not a GitHub remote, do not treat `provider` as GitHub and do not use `gh`.
 
 The `pr` object is normalized across hosts: `provider`, `id`, `number`, `title`, `url`. For GitHub, `id` and `number` are the same PR number. For Azure DevOps, both are the pull request ID.
 
-## Step 1 — Preflight
+## Step 2 — Preflight
 
 Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default branch, rebases, checks for uncommitted changes, counts commits ahead, detects the provider, and checks for an existing PR — all in one call.
 
@@ -128,7 +134,7 @@ Run `$SCRIPTS/preflight.sh` and parse the JSON output. This fetches the default 
 | `test/` | Adding or updating tests with no production code changes |
 | `perf/` | Performance improvements |
 
-## Step 2 — Quality gates
+## Step 3 — Quality gates
 
 Run `$SCRIPTS/detect-gates.sh` and parse the JSON output. The `gates` array contains each detected gate's `name` and `command`.
 
@@ -141,7 +147,7 @@ Run `$SCRIPTS/detect-gates.sh` and parse the JSON output. The `gates` array cont
 - If a fix requires user input or judgment, stop and report the failure with context.
 - If `gates` is empty, skip this step and note it in the final report.
 
-## Step 3 — Documentation
+## Step 4 — Documentation
 
 Review the changes on the branch (`git diff <default-branch>..HEAD`) and update project documentation to reflect anything new, changed, or removed.
 
@@ -166,7 +172,7 @@ Review the changes on the branch (`git diff <default-branch>..HEAD`) and update 
 - If neither file needs changes (e.g. a pure refactor with no public-facing impact), skip this step.
 - Commit documentation updates to the current branch before proceeding.
 
-## Step 4 — Changelog
+## Step 5 — Changelog
 
 Run `$SCRIPTS/changelog-bump.sh info` to get the current version and changelog format.
 
@@ -230,14 +236,16 @@ If the script output has `"updated": true`, it patched an existing draft entry (
 
 The redirect suppresses the "pathspec did not match" warning when only one changelog file exists; the amend still succeeds either way.
 
-## Step 5 — Open the PR
+## Step 6 — Open the PR
 
-Use the `provider`, `prExists`, and `pr` fields from the Step 1 preflight output.
+Use the `provider`, `prExists`, and `pr` fields from the Step 2 preflight output. If `origin` is not a GitHub remote, do not use `gh`.
 
 1. `git push -u origin HEAD`.
 2. Create or update the PR using the detected provider:
 
 ### GitHub (`provider: "github"`)
+
+Use this section only when `origin` is a GitHub remote (`github.com` or `git@github:`). If it is not, do not use `gh` — skip to Azure DevOps when that matches, or stop and report that the host is unsupported.
 
 - **New PR**: `gh pr create` with a title and body derived from the commit log.
 - **Existing PR**: `gh pr edit <pr.number>` (or `gh pr edit` on the current branch) to update the title and body.
@@ -280,9 +288,9 @@ az repos pr create \
   --description "- [ ] Confirm mobile layout"
 ```
 
-> **Optional:** Run `$SCRIPTS/backfill-pr.sh` after creating the PR to add a PR link to the changelog entry. This is not run by default — use it if your team wants PR traceability in the changelog. The script uses the same provider detection as preflight.
+> **Optional:** Run `$SCRIPTS/backfill-pr.sh` after creating the PR to add a PR link to the changelog entry. This is not run by default — use it if your team wants PR traceability in the changelog. The script uses the same provider detection as preflight. If `origin` is not a GitHub remote, do not use `gh`.
 
-## Step 6 — Post-flight report
+## Step 7 — Post-flight report
 
 Print a short summary:
 
