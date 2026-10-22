@@ -1,8 +1,8 @@
 {
   "name": "agent-resources",
   "description": "Agent skills and Cursor rules",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": { "name": "jcottam" },
   "license": "MIT",
-  "skills": ["./skills/design/content-wireframe", "./skills/engineering/orient", "./skills/engineering/ship", "./skills/engineering/review-pr", "./skills/engineering/squash-branch", "./skills/engineering/promote-skill", "./skills/engineering/new-project", "./skills/productivity/release-notes", "./skills/productivity/handoff", "./skills/thinking/advisor", "./skills/thinking/sounding-board", "./skills/publishing/host"]
+  "skills": ["./skills/design/content-wireframe", "./skills/engineering/orient", "./skills/engineering/ship", "./skills/engineering/review-pr", "./skills/engineering/squash-branch", "./skills/engineering/promote-skill", "./skills/engineering/new-project", "./skills/productivity/release-notes", "./skills/productivity/handoff", "./skills/productivity/writing-tickets", "./skills/thinking/advisor", "./skills/thinking/sounding-board", "./skills/publishing/host"]
 }
