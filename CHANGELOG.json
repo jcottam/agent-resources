@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.0.0",
+    "date": "2026-10-24",
+    "changes": {
+      "breaking": [
+        "Removed the handoff skill; it was adapted from another author's Claude Code workflow rather than original to this repository"
+      ]
+    }
+  },
+  {
     "version": "1.2.0",
     "date": "2026-10-22",
     "changes": {
