@@ -60,6 +60,7 @@ npx skills update
 |-------|-------------|
 | [release-notes](./skills/productivity/release-notes/SKILL.md) | Summarize a chosen grouping of commits (this branch, a PR, or recent commits) into plain-language release notes for non-technical readers at a chosen reading level. |
 | [handoff](./skills/productivity/handoff/SKILL.md) | Compact session context into `~/.agents/handoffs/` with deduped artifact references, next-session focus, and suggested skills for resume. |
+| [writing-tickets](./skills/productivity/writing-tickets/SKILL.md) | Write issue tracker tickets that state the objective, evidence, decisions, hard rules, and done criteria, and leave the how to the person or agent who picks them up. |
 
 ### Thinking
 

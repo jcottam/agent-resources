@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.2.0",
+    "date": "2026-10-22",
+    "changes": {
+      "features": [
+        "Added writing-tickets skill for writing issue tracker tickets that state the objective, evidence, decisions, hard rules, and done criteria instead of implementation steps"
+      ]
+    }
+  },
+  {
     "version": "1.1.0",
     "date": "2026-09-20",
     "changes": {
