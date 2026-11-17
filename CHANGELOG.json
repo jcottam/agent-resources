@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.2.0",
+    "date": "2026-11-16",
+    "changes": {
+      "improvements": [
+        "babysit-pr finishes other findings in a round before asking about product decisions, skips the push when unrelated checks fail, and stops after Bugbot timeout or an unrelated gate failure"
+      ]
+    }
+  },
+  {
     "version": "2.1.0",
     "date": "2026-11-16",
     "changes": {
