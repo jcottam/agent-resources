@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.3.0",
+    "date": "2026-11-16",
+    "changes": {
+      "improvements": [
+        "babysit-pr now handles every open PR comment: Bugbot first, then human reviewers and other bots, without declining human threads on the user's behalf"
+      ]
+    }
+  },
+  {
     "version": "2.2.0",
     "date": "2026-11-16",
     "changes": {
