@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.1.0",
+    "date": "2026-11-16",
+    "changes": {
+      "features": [
+        "Added babysit-pr skill to wait for Bugbot on an open PR, fix valid findings, and loop until the review is clean"
+      ]
+    }
+  },
+  {
     "version": "2.0.0",
     "date": "2026-10-24",
     "changes": {
