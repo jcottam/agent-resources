@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.4.0",
+    "date": "2026-11-20",
+    "changes": {
+      "features": [
+        "Added cleanup-harden skill for a behavior-preserving cleanup and hardening pass covering security, DRY, dead-code removal, doc drift, and repo hygiene"
+      ]
+    }
+  },
+  {
     "version": "2.3.0",
     "date": "2026-11-16",
     "changes": {

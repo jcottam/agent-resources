@@ -48,6 +48,7 @@ npx skills update
 | [babysit-pr](./skills/engineering/babysit-pr/SKILL.md) | Babysit review comments on the current branch's pull request. Bugbot first, then human reviewers and other bots, for up to three rounds or until nothing new is open. |
 | [squash-branch](./skills/engineering/squash-branch/SKILL.md) | Group related commits into a clean history while proving the final code is unchanged. |
 | [promote-skill](./skills/engineering/promote-skill/SKILL.md) | Move a tested personal skill into a shared repository with overlap checks, normalized metadata, catalog updates, and validation. |
+| [cleanup-harden](./skills/engineering/cleanup-harden/SKILL.md) | Runs a cleanup and hardening pass on an application or website covering security fixes, DRY consolidation, orphan and dead-code removal, doc drift, dependency audit, error handling, config validation, performance, and repo hygiene, without changing user-facing behavior. |
 
 ### Publishing
 
